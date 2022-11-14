@@ -1,6 +1,7 @@
 package com.ttn.ecommerce.entity;
 
 import lombok.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,7 +11,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")
     @SequenceGenerator(name = "user_gen", sequenceName = "user_seq", initialValue = 1, allocationSize=1)
@@ -43,5 +44,12 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Customer customer;
+
+    @OneToOne
+    @JoinTable(name = "user_role",
+            joinColumns ={@JoinColumn(name="user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name="role_id", referencedColumnName = "id")})
+    private Role role;
+
 
 }

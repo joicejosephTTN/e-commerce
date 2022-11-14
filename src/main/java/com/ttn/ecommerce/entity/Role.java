@@ -1,8 +1,13 @@
 package com.ttn.ecommerce.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
+@Getter
+@Setter
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_gen")
@@ -10,4 +15,5 @@ public class Role {
     private int id;
 
     private String authority;
+
 }
