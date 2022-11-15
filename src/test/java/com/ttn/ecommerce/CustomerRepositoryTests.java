@@ -1,7 +1,6 @@
 package com.ttn.ecommerce;
 import com.ttn.ecommerce.entity.Address;
 import com.ttn.ecommerce.entity.Customer;
-import com.ttn.ecommerce.entity.Seller;
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.CustomerRepository;
 import org.assertj.core.api.Assertions;

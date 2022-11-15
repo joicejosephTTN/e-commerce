@@ -4,8 +4,8 @@ import com.ttn.ecommerce.entity.Role;
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.RoleRepository;
 import com.ttn.ecommerce.repository.UserRepository;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BootstrapCommandLineRunner implements CommandLineRunner {
 
-    protected final Log logger = LogFactory.getLog(getClass());
+    Logger logger = LoggerFactory.getLogger(BootstrapCommandLineRunner.class);
 
     private UserRepository userRepository;
 
@@ -33,6 +33,8 @@ public class BootstrapCommandLineRunner implements CommandLineRunner {
         logger.info("BootstrapCommandLineRunner's run method started.");
 
         if(roleRepository.count()<1){
+
+            logger.info("populating Role table");
             Role role1 = new Role();
             role1.setId(1);
             role1.setAuthority("ADMIN");
@@ -49,8 +51,12 @@ public class BootstrapCommandLineRunner implements CommandLineRunner {
             roleRepository.save(role2);
             roleRepository.save(role3);
 
+            logger.info(roleRepository.count() + " roles created.");
+
         }
         if(userRepository.count()<1) {
+            logger.info("creating an admin user");
+
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             User user = new User();
             user.setFirstName("Super");
@@ -60,9 +66,11 @@ public class BootstrapCommandLineRunner implements CommandLineRunner {
             Role role = roleRepository.findById(1).get();
             user.setRole(role);
             userRepository.save(user);
+            logger.info(user.getFirstName()+" "+user.getLastName()+ " created.");
+
         }
 
-        logger.info("populated Roles table and created Admin user");
+        logger.info("populated Roles table and created Admin user.");
 
     }
 }

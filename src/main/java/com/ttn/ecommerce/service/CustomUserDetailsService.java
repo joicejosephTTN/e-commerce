@@ -2,15 +2,15 @@ package com.ttn.ecommerce.service;
 import com.ttn.ecommerce.entity.Role;
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -23,6 +23,8 @@ import java.util.List;
 @Transactional
 public class CustomUserDetailsService implements UserDetailsService {
 
+    Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
+
     @Autowired
     UserRepository userRepository;
 
@@ -31,11 +33,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+        logger.info("Looking for user in the database");
+
         User user = userRepository.findUserByEmail(email);
-        System.out.println(">>>>>>>>>>>>>>>"+ user.toString());
         if(user == null){
+            logger.error("User not found in the database");
             throw new UsernameNotFoundException("Invalid credentials.");
         }
+
+        logger.info("User found: "+ user.toString());
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
