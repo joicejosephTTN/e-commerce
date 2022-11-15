@@ -11,6 +11,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")

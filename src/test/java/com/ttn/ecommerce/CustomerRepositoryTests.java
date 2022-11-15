@@ -33,7 +33,7 @@ public class CustomerRepositoryTests {
         user.setPassword("supersecret");
 
 
-        // list of address - for multi address
+        // list of address - for multiple addresses
         List<Address> addresses = new ArrayList<>();
 
         Address address = new Address();

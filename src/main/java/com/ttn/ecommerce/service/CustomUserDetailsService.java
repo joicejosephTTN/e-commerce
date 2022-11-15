@@ -26,14 +26,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     UserRepository userRepository;
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findUserByEmail(email);
+        System.out.println(">>>>>>>>>>>>>>>"+ user.toString());
         if(user == null){
             throw new UsernameNotFoundException("Invalid credentials.");
         }

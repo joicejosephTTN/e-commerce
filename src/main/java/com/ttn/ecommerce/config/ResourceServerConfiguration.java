@@ -32,8 +32,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/index").permitAll()
-                .antMatchers("/api/v1/customer/**").permitAll()
+//                .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
