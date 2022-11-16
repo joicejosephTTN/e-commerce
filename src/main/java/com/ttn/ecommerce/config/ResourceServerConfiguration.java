@@ -25,6 +25,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
     @Autowired
     private UserDetailsService customUserDetailsService;
 
@@ -32,7 +33,8 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-//                .antMatchers("/").permitAll()
+                .antMatchers("/api/registration").permitAll()
+                .antMatchers("/api/users").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
