@@ -1,13 +1,15 @@
 package com.ttn.ecommerce.service;
-
+import com.ttn.ecommerce.advice.PasswordDoNotMatchException;
+import com.ttn.ecommerce.advice.UserAlreadyExistsException;
 import com.ttn.ecommerce.entity.*;
-import com.ttn.ecommerce.model.AddressDTO;
 import com.ttn.ecommerce.model.CustomerDTO;
 import com.ttn.ecommerce.model.SellerDTO;
 import com.ttn.ecommerce.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -35,9 +37,20 @@ public class RegistrationService {
         user.setLastName(sellerDTO.getLastName());
         //optional
         user.setMiddleName(sellerDTO.getMiddleName());
-        // if username is unique
-        user.setEmail(sellerDTO.getEmail());
-        //if password = reEnterPassword
+
+
+        // checking if username(email) already exists
+        String providedEmail = sellerDTO.getEmail();
+        User existingUser = userRepository.findUserByEmail(providedEmail);
+        if(existingUser!=null){
+            throw new UserAlreadyExistsException("User with the provided email already exists.");
+        }
+        user.setEmail(providedEmail);
+
+        // checking if password and reEnterPassword match
+        if( !(sellerDTO.getPassword().equals(sellerDTO.getReEnterPassword())) ){
+            throw new PasswordDoNotMatchException("Passwords do not match");
+        }
         user.setPassword(bCryptPasswordEncoder.encode(sellerDTO.getReEnterPassword()));
 
         Role role = roleRepository.findRoleByAuthority("SELLER");

@@ -1,5 +1,4 @@
 package com.ttn.ecommerce.controller;
-
 import com.ttn.ecommerce.entity.Customer;
 import com.ttn.ecommerce.entity.Seller;
 import com.ttn.ecommerce.entity.User;
@@ -11,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -28,7 +28,7 @@ public class RegistrationController {
     }
 
     @PostMapping(path = "/registration", headers = "user-role=SELLER")
-    public ResponseEntity<Seller> registerUser(@RequestBody SellerDTO sellerDTO){
+    public ResponseEntity<Seller> registerUser(@Valid @RequestBody SellerDTO sellerDTO){
         Seller seller = registrationService.createSeller(sellerDTO);
         return new ResponseEntity<Seller>(seller, HttpStatus.CREATED);
 
