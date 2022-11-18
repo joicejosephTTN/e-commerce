@@ -1,6 +1,6 @@
 package com.ttn.ecommerce;
 
-import com.ttn.ecommerce.controller.AuthenticationController;
+import com.ttn.ecommerce.controller.DummyController;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(AuthenticationController.class)
+@WebMvcTest(DummyController.class)
 public class AuthenticationControllerTest {
 
     @Autowired
