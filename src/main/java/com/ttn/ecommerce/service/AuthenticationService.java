@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.service;
 
+import com.ttn.ecommerce.config.CustomAuthenticationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @Service
 public class AuthenticationService {
@@ -23,21 +25,22 @@ public class AuthenticationService {
     @Autowired
     TokenStore tokenStore;
 
-
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private CustomAuthenticationManager authenticationManager;
 
     public Object userSignIn(String username, String password){
+
         Authentication authentication = authenticationManager.
                 authenticate(new UsernamePasswordAuthenticationToken(username,password));
         System.out.println(authentication);
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
         SecurityContext context = SecurityContextHolder.getContext();
-        System.out.println(context);
         Authentication reqAuthObject = context.getAuthentication();
-        System.out.println(reqAuthObject);
         Object details = reqAuthObject.getDetails();
-        System.out.println(details);
+
         return details;
     }
 

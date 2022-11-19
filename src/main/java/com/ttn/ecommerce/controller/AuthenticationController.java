@@ -21,8 +21,8 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
 
     @PostMapping(path = "/login")
-    public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDTO){
-        Object details = authenticationService.userSignIn(loginDTO.getEmail(), loginDTO.getPassword());
+    public ResponseEntity<String> userLogin(@RequestBody LoginDTO loginDTO){
+        authenticationService.userSignIn(loginDTO.getEmail(), loginDTO.getPassword());
         return new ResponseEntity<>("User signed-in successfully.", HttpStatus.OK);
     }
 

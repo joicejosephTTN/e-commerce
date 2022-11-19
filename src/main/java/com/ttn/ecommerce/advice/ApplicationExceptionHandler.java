@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.security.auth.login.AccountLockedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +54,13 @@ public class ApplicationExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<CustomErrorFormat> handleBadCredentials(BadCredentialsException ex, WebRequest request) throws  BadCredentialsException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorFormat, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(AccountLockedException.class)
+    public ResponseEntity<CustomErrorFormat> handleAccountLocked(AccountLockedException ex, WebRequest request) throws  AccountLockedException{
         CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(errorFormat, HttpStatus.UNAUTHORIZED);
     }

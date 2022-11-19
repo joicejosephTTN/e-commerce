@@ -28,15 +28,15 @@ public class RegistrationController {
     }
 
     @PostMapping(path = "/registration", headers = "user-role=SELLER")
-    public ResponseEntity<Seller> registerUser(@Valid @RequestBody SellerDTO sellerDTO){
-        Seller seller = registrationService.createSeller(sellerDTO);
-        return new ResponseEntity<Seller>(seller, HttpStatus.CREATED);
+    public ResponseEntity<String> registerUser(@Valid @RequestBody SellerDTO sellerDTO){
+        String response = registrationService.createSeller(sellerDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
 
     @PostMapping(path = "/registration", headers = "user-role=CUSTOMER")
-    public ResponseEntity<Customer> registerUser(@RequestBody CustomerDTO customerDTO){
-        Customer customer = registrationService.createCustomer(customerDTO);
-        return new ResponseEntity<Customer>(customer, HttpStatus.CREATED);
+    public ResponseEntity<String> registerUser(@Valid @RequestBody CustomerDTO customerDTO){
+        String response = registrationService.createCustomer(customerDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

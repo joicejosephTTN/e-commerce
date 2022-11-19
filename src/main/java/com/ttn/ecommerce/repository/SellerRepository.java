@@ -7,5 +7,8 @@ import java.util.Optional;
 
 public interface SellerRepository extends JpaRepository<Seller, Long> {
 
-    Optional<Seller> findByGst(String gst);
+    Seller findByGst(String gst);
+    Seller findByCompanyNameIgnoreCase(String companyName);
+
+
 }

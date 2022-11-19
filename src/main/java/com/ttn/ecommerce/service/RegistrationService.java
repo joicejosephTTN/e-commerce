@@ -6,12 +6,11 @@ import com.ttn.ecommerce.model.CustomerDTO;
 import com.ttn.ecommerce.model.SellerDTO;
 import com.ttn.ecommerce.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RegistrationService {
@@ -26,18 +25,12 @@ public class RegistrationService {
     SellerRepository sellerRepository;
     @Autowired
     CustomerRepository customerRepository;
-
     @Autowired
     AddressRepository addressRepository;
+    @Autowired
+    EmailService emailService;
 
-
-    public Seller createSeller(SellerDTO sellerDTO){
-        User user = new User();
-        user.setFirstName(sellerDTO.getFirstName());
-        user.setLastName(sellerDTO.getLastName());
-        //optional
-        user.setMiddleName(sellerDTO.getMiddleName());
-
+    public String createSeller(SellerDTO sellerDTO){
 
         // checking if username(email) already exists
         String providedEmail = sellerDTO.getEmail();
@@ -45,80 +38,119 @@ public class RegistrationService {
         if(existingUser!=null){
             throw new UserAlreadyExistsException("User with the provided email already exists.");
         }
-        user.setEmail(providedEmail);
-
         // checking if password and reEnterPassword match
-        if( !(sellerDTO.getPassword().equals(sellerDTO.getReEnterPassword())) ){
+        else if( !(sellerDTO.getPassword().equals(sellerDTO.getReEnterPassword())) ){
             throw new PasswordDoNotMatchException("Passwords do not match");
         }
-        user.setPassword(bCryptPasswordEncoder.encode(sellerDTO.getReEnterPassword()));
+        else {
+            User user = new User();
+            user.setFirstName(sellerDTO.getFirstName());
+            user.setLastName(sellerDTO.getLastName());
+            //optional
+            user.setMiddleName(sellerDTO.getMiddleName());
+            user.setEmail(providedEmail);
+            user.setPassword(bCryptPasswordEncoder.encode(sellerDTO.getReEnterPassword()));
 
-        Role role = roleRepository.findRoleByAuthority("SELLER");
-        user.setRole(role);
+            Role role = roleRepository.findRoleByAuthority("SELLER");
+            user.setRole(role);
 
-        Seller seller = new Seller();
-        seller.setGst(sellerDTO.getGst());
-        seller.setCompanyName(sellerDTO.getCompanyName());
-        seller.setCompanyContact(sellerDTO.getCompanyContact());
+            Seller seller = new Seller();
+            String providedGst = sellerDTO.getGst();
+            Seller existingGst = sellerRepository.findByGst(providedGst);
 
-        seller.setUser(user);
+            String providedCompanyName = sellerDTO.getCompanyName();
+            Seller existingCompanyName = sellerRepository.findByCompanyNameIgnoreCase(providedCompanyName);
+            if(existingGst!=null){
+                throw new UserAlreadyExistsException("User with the provided GST number already exists.");
+            }
+            else if(existingCompanyName!=null) {
+                throw new UserAlreadyExistsException("User with the provided Company Name already exists.");
+            }
+            else {
 
-        Address address= new Address();
-        address.setCity(sellerDTO.getAddress().getCity());
-        address.setState(sellerDTO.getAddress().getState());
-        address.setAddressLine(sellerDTO.getAddress().getAddressLine());
-        address.setZipCode(sellerDTO.getAddress().getZipCode());
-        address.setCountry(sellerDTO.getAddress().getCountry());
-        address.setLabel(sellerDTO.getAddress().getLabel());
+                seller.setGst(sellerDTO.getGst());
+                seller.setCompanyName(sellerDTO.getCompanyName());
+                seller.setCompanyContact(sellerDTO.getCompanyContact());
 
-        address.setSeller(seller);
+                seller.setUser(user);
 
-        addressRepository.save(address);
-        sellerRepository.save(seller);
-        userRepository.save(user);
+                Address address = new Address();
+                address.setCity(sellerDTO.getAddress().getCity());
+                address.setState(sellerDTO.getAddress().getState());
+                address.setAddressLine(sellerDTO.getAddress().getAddressLine());
+                address.setZipCode(sellerDTO.getAddress().getZipCode());
+                address.setCountry(sellerDTO.getAddress().getCountry());
+                address.setLabel(sellerDTO.getAddress().getLabel());
 
-        return seller;
+                address.setSeller(seller);
+
+                addressRepository.save(address);
+                sellerRepository.save(seller);
+                userRepository.save(user);
+            }
+
+        }
+
+        return "Seller has been registered successfully. Awaiting approval for account activation.";
     }
 
 
-    public Customer createCustomer(CustomerDTO customerDTO){
-        User user = new User();
-        user.setFirstName(customerDTO.getFirstName());
-        user.setLastName(customerDTO.getLastName());
-        //optional
-        user.setMiddleName(customerDTO.getMiddleName());
-        // if username is unique
-        user.setEmail(customerDTO.getEmail());
-        //if password = reEnterPassword
-        user.setPassword(bCryptPasswordEncoder.encode(customerDTO.getReEnterPassword()));
+    public String createCustomer(CustomerDTO customerDTO){
 
-        Role role = roleRepository.findRoleByAuthority("CUSTOMER");
-        user.setRole(role);
+        // checking if username(email) already exists
+        String providedEmail = customerDTO.getEmail();
+        User existingUser = userRepository.findUserByEmail(providedEmail);
+        if(existingUser!=null){
+            throw new UserAlreadyExistsException("User with the provided email already exists.");
+        }
+        // checking if password and reEnterPassword match
+        else if( !(customerDTO.getPassword().equals(customerDTO.getReEnterPassword())) ){
+            throw new PasswordDoNotMatchException("Passwords do not match.");
+        }
+        else {
+            User user = new User();
+            user.setFirstName(customerDTO.getFirstName());
+            user.setLastName(customerDTO.getLastName());
+            //optional
+            user.setMiddleName(customerDTO.getMiddleName());
+            user.setEmail(customerDTO.getEmail());
+            user.setPassword(bCryptPasswordEncoder.encode(customerDTO.getReEnterPassword()));
 
-        Customer customer = new Customer();
-        customer.setContact(customerDTO.getContact());
-        customer.setUser(user);
-        // multiple address -- might require separate logic
+            Role role = roleRepository.findRoleByAuthority("CUSTOMER");
+            user.setRole(role);
 
-        customerDTO.getAddress().forEach(addressDTO -> {
-            Address address= new Address();
-            address.setCity(addressDTO.getCity());
-            address.setState(addressDTO.getState());
-            address.setAddressLine(addressDTO.getAddressLine());
-            address.setZipCode(addressDTO.getZipCode());
-            address.setCountry(addressDTO.getCountry());
-            address.setLabel(addressDTO.getLabel());
-            address.setCustomer(customer);
+            Customer customer = new Customer();
+            customer.setContact(customerDTO.getContact());
+            customer.setUser(user);
 
-            addressRepository.save(address);
+            // multiple address -- might require separate logic
 
-        });
+            customerDTO.getAddress().forEach(addressDTO -> {
+                Address address = new Address();
+                address.setCity(addressDTO.getCity());
+                address.setState(addressDTO.getState());
+                address.setAddressLine(addressDTO.getAddressLine());
+                address.setZipCode(addressDTO.getZipCode());
+                address.setCountry(addressDTO.getCountry());
+                address.setLabel(addressDTO.getLabel());
+                address.setCustomer(customer);
 
-        customerRepository.save(customer);
-        userRepository.save(user);
+                addressRepository.save(address);
 
-        return customer;
+            });
+
+            customerRepository.save(customer);
+            userRepository.save(user);
+
+            // sending an activation email
+            emailService.sendActivationMail(user);
+
+        }
+        return "Customer has been registered successfully. An activation mail " +
+                "has been sent to the registered email account.";
     }
+
+
 
     //Testing purpose
     public List<User> returnAllUsers(){
