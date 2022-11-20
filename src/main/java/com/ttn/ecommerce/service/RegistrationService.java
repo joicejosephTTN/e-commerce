@@ -1,6 +1,6 @@
 package com.ttn.ecommerce.service;
-import com.ttn.ecommerce.advice.PasswordDoNotMatchException;
-import com.ttn.ecommerce.advice.UserAlreadyExistsException;
+import com.ttn.ecommerce.exception.PasswordDoNotMatchException;
+import com.ttn.ecommerce.exception.UserAlreadyExistsException;
 import com.ttn.ecommerce.entity.*;
 import com.ttn.ecommerce.model.CustomerDTO;
 import com.ttn.ecommerce.model.SellerDTO;
@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RegistrationService {

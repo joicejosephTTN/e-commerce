@@ -1,4 +1,4 @@
-package com.ttn.ecommerce.advice;
+package com.ttn.ecommerce.exception;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;

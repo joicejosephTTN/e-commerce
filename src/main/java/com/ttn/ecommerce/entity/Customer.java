@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.entity;
 
+import com.ttn.ecommerce.utils.Auditable;
 import lombok.*;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Customer {
+public class Customer extends Auditable<String>  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "customer_gen")

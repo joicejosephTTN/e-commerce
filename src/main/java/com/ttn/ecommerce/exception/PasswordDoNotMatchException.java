@@ -1,4 +1,4 @@
-package com.ttn.ecommerce.advice;
+package com.ttn.ecommerce.exception;
 
 
 public class PasswordDoNotMatchException extends RuntimeException{

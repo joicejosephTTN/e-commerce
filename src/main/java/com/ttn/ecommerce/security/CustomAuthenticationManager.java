@@ -1,4 +1,4 @@
-package com.ttn.ecommerce.config;
+package com.ttn.ecommerce.security;
 
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.UserRepository;

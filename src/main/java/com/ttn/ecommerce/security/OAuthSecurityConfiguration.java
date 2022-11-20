@@ -1,4 +1,4 @@
-package com.ttn.ecommerce.config;
+package com.ttn.ecommerce.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

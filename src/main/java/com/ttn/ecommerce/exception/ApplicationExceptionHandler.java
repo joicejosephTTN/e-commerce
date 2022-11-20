@@ -1,4 +1,4 @@
-package com.ttn.ecommerce.advice;
+package com.ttn.ecommerce.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

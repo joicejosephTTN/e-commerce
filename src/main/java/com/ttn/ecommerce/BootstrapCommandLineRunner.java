@@ -63,6 +63,7 @@ public class BootstrapCommandLineRunner implements CommandLineRunner {
             user.setLastName("User");
             user.setEmail("superuser@gmail.com");
             user.setPassword(passwordEncoder.encode("supersecret"));
+            user.setActive(true);
             Role role = roleRepository.findById(1).get();
             user.setRole(role);
             userRepository.save(user);

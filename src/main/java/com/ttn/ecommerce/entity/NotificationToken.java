@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.entity;
 
+import com.ttn.ecommerce.utils.Auditable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
-public class NotificationToken {
+public class NotificationToken extends Auditable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "token_gen")
     @SequenceGenerator(name="token_gen", sequenceName = "token_seq", initialValue = 1, allocationSize = 1)

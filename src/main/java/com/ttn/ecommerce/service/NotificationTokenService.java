@@ -1,6 +1,6 @@
 package com.ttn.ecommerce.service;
 
-import com.ttn.ecommerce.advice.PasswordDoNotMatchException;
+import com.ttn.ecommerce.exception.PasswordDoNotMatchException;
 import com.ttn.ecommerce.entity.NotificationToken;
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.NotificationTokenRepository;
@@ -8,7 +8,6 @@ import com.ttn.ecommerce.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 

@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.entity;
 
+import com.ttn.ecommerce.utils.Auditable;
 import lombok.*;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Seller {
+public class Seller extends Auditable<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seller_gen")

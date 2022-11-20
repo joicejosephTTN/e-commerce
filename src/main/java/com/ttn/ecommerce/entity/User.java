@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.entity;
 
+import com.ttn.ecommerce.utils.Auditable;
 import lombok.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class User{
+public class User extends Auditable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")
     @SequenceGenerator(name = "user_gen", sequenceName = "user_seq", initialValue = 1, allocationSize=1)

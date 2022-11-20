@@ -1,4 +1,4 @@
-package com.ttn.ecommerce.config;
+package com.ttn.ecommerce.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +37,8 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers("/api/users").permitAll()
                 .antMatchers("/api/login").permitAll()
                 .antMatchers("/api/activate_account").permitAll()
+                .antMatchers("/api/forgot_password").permitAll()
+                .antMatchers("/api/reset_password").permitAll()
                 .antMatchers("/api/logout").authenticated()
                 .anyRequest().authenticated()
                 .and()
