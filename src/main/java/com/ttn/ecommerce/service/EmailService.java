@@ -23,6 +23,7 @@ public class EmailService {
 
     private static final String ACTIVATION_SUBJECT = "Account Activation | Dummy Ecommerce Application";
     private static final String RESET_SUBJECT = "Password Reset Request | Dummy Ecommerce Application";
+    private static final String ACCOUNT_LOCKED_SUBJECT = "Suspicious Account Activity | Dummy Ecommerce Application";
 
 
     @Async
@@ -107,5 +108,36 @@ public class EmailService {
 
         sendEmail(user.getEmail(), emailBody, RESET_SUBJECT);
         logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
+    }
+
+    public void sendAwaitingApprovalMail(User user){
+        logger.info("EmailService::sendAwaitingApprovalMail execution started.");
+
+        logger.debug("EmailService::sendAwaitingApprovalMail composing email to send");
+
+        String emailBody = "Hi " + user.getFirstName() +", " + "\n\n" +
+                "We're excited to have you get started. Your account is currently pending approval. " +
+                "\n\n" +
+                "- Team 'Dummy Ecommerce Application' ";
+
+        sendEmail(user.getEmail(), emailBody, ACTIVATION_SUBJECT);
+        logger.info("EmailService::sendAwaitingApprovalMail execution ended.");
+
+    }
+
+    public void sendAccountLockedMail(User user){
+        logger.info("EmailService::sendAccountLockedMail execution started.");
+
+        logger.debug("EmailService::sendAccountLockedMail composing email to send");
+
+        String emailBody = "Hi " + user.getFirstName() +", " + "\n\n" +
+                "We've detected suspicious activity within your account. Your account has been temporarily put on lock. " +
+                "Please contact technical support team if you think was a mistake." +
+                "\n\n" +
+                "- Team 'Dummy Ecommerce Application' ";
+
+        sendEmail(user.getEmail(), emailBody, ACCOUNT_LOCKED_SUBJECT);
+        logger.info("EmailService::sendAccountLockedMail execution ended.");
+
     }
 }

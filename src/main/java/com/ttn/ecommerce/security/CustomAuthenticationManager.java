@@ -2,6 +2,7 @@ package com.ttn.ecommerce.security;
 
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.UserRepository;
+import com.ttn.ecommerce.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    EmailService emailService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -62,6 +66,7 @@ public class CustomAuthenticationManager implements AuthenticationManager {
                 user.setLocked(true);
                 user.setInvalidAttemptCount(0);
                 userRepository.save(user);
+                emailService.sendAccountLockedMail(user);
                 logger.debug("CustomAuthenticationManager::authenticate  account locked");
             }
             logger.error("Exception occurred while authenticating");

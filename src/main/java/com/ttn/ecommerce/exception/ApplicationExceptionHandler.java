@@ -61,7 +61,7 @@ public class ApplicationExceptionHandler {
 
 
     @ExceptionHandler(AccountLockedException.class)
-    public ResponseEntity<CustomErrorFormat> handleAccountLocked(AccountLockedException ex, WebRequest request){
+    public ResponseEntity<CustomErrorFormat> handleAccountLocked(AccountLockedException ex, WebRequest request) throws AccountLockedException{
         CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.UNAUTHORIZED);
         return new ResponseEntity<>(errorFormat, HttpStatus.UNAUTHORIZED);
     }

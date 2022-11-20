@@ -95,6 +95,9 @@ public class RegistrationService {
                 addressRepository.save(address);
                 sellerRepository.save(seller);
                 userRepository.save(user);
+
+                // sending mail to notify account creation
+                emailService.sendAwaitingApprovalMail(user);
             }
 
         }
