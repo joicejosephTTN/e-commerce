@@ -2,6 +2,8 @@ package com.ttn.ecommerce.security;
 
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,6 +24,8 @@ import java.util.List;
 @Component
 public class CustomAuthenticationManager implements AuthenticationManager {
 
+    Logger logger = LoggerFactory.getLogger(CustomAuthenticationManager.class);
+
     @Autowired
     UserRepository userRepository;
 
@@ -30,19 +34,26 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
+        logger.info("CustomAuthenticationManager::authenticate execution started.");
+        logger.debug("CustomAuthenticationManager::authenticate authenticating credentials, generating token");
+
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
         User user = userRepository.findUserByEmail(username);
 
         if(user==null){
+            logger.error("Exception occurred while authenticating");
             throw new UsernameNotFoundException("Invalid credentials");
         }
         if(user.isLocked()){
+            logger.error("Exception occurred while authenticating");
             throw new BadCredentialsException("Account is locked"); // change the exception
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
+            logger.debug("CustomAuthenticationManager::authenticate invalid attempt");
             int counter = user.getInvalidAttemptCount();
             if(counter < 2){
                 user.setInvalidAttemptCount(++counter);
@@ -51,7 +62,9 @@ public class CustomAuthenticationManager implements AuthenticationManager {
                 user.setLocked(true);
                 user.setInvalidAttemptCount(0);
                 userRepository.save(user);
+                logger.debug("CustomAuthenticationManager::authenticate  account locked");
             }
+            logger.error("Exception occurred while authenticating");
             throw new BadCredentialsException("Invalid Credentials");
         }
 
@@ -60,6 +73,8 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
         user.setInvalidAttemptCount(0); // reset counter on successful login
         userRepository.save(user);
+        logger.debug("CustomAuthenticationManager::authenticate credentials authenticated ");
+        logger.info("CustomAuthenticationManager::authenticate execution ended.");
         return new UsernamePasswordAuthenticationToken(username, password,authorities);
     }
 }

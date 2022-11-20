@@ -30,11 +30,11 @@ public class BootstrapCommandLineRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        logger.info("BootstrapCommandLineRunner's run method started.");
+        logger.info("BootstrapCommandLineRunner::run execution started.");
 
         if(roleRepository.count()<1){
 
-            logger.info("populating Role table");
+            logger.debug("BootstrapCommandLineRunner::run populating Role table");
             Role role1 = new Role();
             role1.setId(1);
             role1.setAuthority("ADMIN");
@@ -51,11 +51,11 @@ public class BootstrapCommandLineRunner implements CommandLineRunner {
             roleRepository.save(role2);
             roleRepository.save(role3);
 
-            logger.info(roleRepository.count() + " roles created.");
+            logger.debug("BootstrapCommandLineRunner::run " + roleRepository.count() + " roles created.");
 
         }
         if(userRepository.count()<1) {
-            logger.info("creating an admin user");
+            logger.debug("BootstrapCommandLineRunner::run creating an admin user");
 
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             User user = new User();
@@ -67,11 +67,13 @@ public class BootstrapCommandLineRunner implements CommandLineRunner {
             Role role = roleRepository.findById(1).get();
             user.setRole(role);
             userRepository.save(user);
-            logger.info(user.getFirstName()+" "+user.getLastName()+ " created.");
+            logger.debug(user.getFirstName()+" "+user.getLastName()+ " created.");
+
+            logger.debug("BootstrapCommandLineRunner::run created an admin user");
 
         }
 
-        logger.info("populated Roles table and created Admin user.");
+        logger.info("BootstrapCommandLineRunner::run execution ended.");
 
     }
 }

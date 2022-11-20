@@ -1,10 +1,13 @@
 package com.ttn.ecommerce.service;
+import com.ttn.ecommerce.controller.RegistrationController;
 import com.ttn.ecommerce.exception.PasswordDoNotMatchException;
 import com.ttn.ecommerce.exception.UserAlreadyExistsException;
 import com.ttn.ecommerce.entity.*;
 import com.ttn.ecommerce.model.CustomerDTO;
 import com.ttn.ecommerce.model.SellerDTO;
 import com.ttn.ecommerce.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import java.util.List;
 
 @Service
 public class RegistrationService {
+    Logger logger = LoggerFactory.getLogger(RegistrationService.class);
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -30,15 +34,18 @@ public class RegistrationService {
     EmailService emailService;
 
     public String createSeller(SellerDTO sellerDTO){
+        logger.info("RegistrationService::createSeller execution started.");
 
         // checking if username(email) already exists
         String providedEmail = sellerDTO.getEmail();
         User existingUser = userRepository.findUserByEmail(providedEmail);
         if(existingUser!=null){
+            logger.error("Exception occurred while persisting seller to the database");
             throw new UserAlreadyExistsException("User with the provided email already exists.");
         }
         // checking if password and reEnterPassword match
         else if( !(sellerDTO.getPassword().equals(sellerDTO.getReEnterPassword())) ){
+            logger.error("Exception occurred while persisting seller to the database");
             throw new PasswordDoNotMatchException("Passwords do not match");
         }
         else {
@@ -60,13 +67,15 @@ public class RegistrationService {
             String providedCompanyName = sellerDTO.getCompanyName();
             Seller existingCompanyName = sellerRepository.findByCompanyNameIgnoreCase(providedCompanyName);
             if(existingGst!=null){
+                logger.error("Exception occurred while persisting seller to the database");
                 throw new UserAlreadyExistsException("User with the provided GST number already exists.");
             }
             else if(existingCompanyName!=null) {
+                logger.error("Exception occurred while persisting seller to the database");
                 throw new UserAlreadyExistsException("User with the provided Company Name already exists.");
             }
             else {
-
+                logger.debug("RegistrationService::createSeller persisting seller to the database");
                 seller.setGst(sellerDTO.getGst());
                 seller.setCompanyName(sellerDTO.getCompanyName());
                 seller.setCompanyContact(sellerDTO.getCompanyContact());
@@ -89,24 +98,30 @@ public class RegistrationService {
             }
 
         }
+        logger.info("RegistrationService::createSeller execution ended.");
 
         return "Seller has been registered successfully. Awaiting approval for account activation.";
     }
 
 
     public String createCustomer(CustomerDTO customerDTO){
+        logger.info("RegistrationService::createCustomer execution started.");
 
         // checking if username(email) already exists
         String providedEmail = customerDTO.getEmail();
         User existingUser = userRepository.findUserByEmail(providedEmail);
         if(existingUser!=null){
+            logger.error("Exception occurred while persisting customer to the database");
             throw new UserAlreadyExistsException("User with the provided email already exists.");
         }
         // checking if password and reEnterPassword match
         else if( !(customerDTO.getPassword().equals(customerDTO.getReEnterPassword())) ){
+            logger.error("Exception occurred while persisting customer to the database");
             throw new PasswordDoNotMatchException("Passwords do not match.");
         }
         else {
+
+            logger.debug("RegistrationService::createCustomer persisting customer to the database and sending email");
             User user = new User();
             user.setFirstName(customerDTO.getFirstName());
             user.setLastName(customerDTO.getLastName());
@@ -145,6 +160,7 @@ public class RegistrationService {
             emailService.sendActivationMail(user);
 
         }
+        logger.info("RegistrationService::createCustomer execution ended.");
         return "Customer has been registered successfully. An activation mail " +
                 "has been sent to the registered email account.";
     }
