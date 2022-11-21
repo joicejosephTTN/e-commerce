@@ -1,8 +1,8 @@
 package com.ttn.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ttn.ecommerce.utils.Auditable;
 import lombok.*;
-
 import javax.persistence.*;
 
 @Entity
@@ -28,6 +28,7 @@ public class Seller extends Auditable<String> {
     private User user;
 
     @OneToOne(mappedBy = "seller",cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Address address;
 
 }

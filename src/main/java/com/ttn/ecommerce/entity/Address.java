@@ -1,5 +1,7 @@
 package com.ttn.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ttn.ecommerce.utils.Auditable;
 import lombok.*;
 
@@ -28,10 +30,12 @@ public class Address extends Auditable<String> {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="seller_id")
+    @JsonBackReference
     private Seller seller;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="customer_id")
+    @JsonBackReference
     private Customer customer;
 
 }

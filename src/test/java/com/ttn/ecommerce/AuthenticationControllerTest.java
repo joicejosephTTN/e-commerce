@@ -52,7 +52,6 @@ public class AuthenticationControllerTest {
     void testIndex() throws Exception {
         String accessToken = obtainAccessToken("superuser@gmail.com", "supersecret");
 
-        System.out.println("AccessToken>>>>>>>" + accessToken);
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/")
                 .header("Authorization", "Bearer " + accessToken);

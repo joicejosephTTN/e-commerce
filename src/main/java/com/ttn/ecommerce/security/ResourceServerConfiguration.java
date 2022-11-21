@@ -40,6 +40,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers("/api/resend_activation").permitAll()
                 .antMatchers("/api/forgot_password").permitAll()
                 .antMatchers("/api/reset_password").permitAll()
+                .antMatchers("/api/registration").permitAll()
                 .antMatchers("/api/logout").authenticated()
                 .anyRequest().authenticated()
                 .and()

@@ -22,6 +22,7 @@ public class EmailService {
     NotificationTokenRepository notificationTokenRepository;
 
     private static final String ACTIVATION_SUBJECT = "Account Activation | Dummy Ecommerce Application";
+    private static final String DEACTIVATION_SUBJECT = "Account Deactivation | Dummy Ecommerce Application";
     private static final String RESET_SUBJECT = "Password Reset Request | Dummy Ecommerce Application";
     private static final String ACCOUNT_LOCKED_SUBJECT = "Suspicious Account Activity | Dummy Ecommerce Application";
 
@@ -139,5 +140,20 @@ public class EmailService {
         sendEmail(user.getEmail(), emailBody, ACCOUNT_LOCKED_SUBJECT);
         logger.info("EmailService::sendAccountLockedMail execution ended.");
 
+    }
+
+    public void sendDeActivatedMail(User user) {
+        logger.info("EmailService::sendDeActivatedMail execution started.");
+
+        logger.debug("EmailService::sendDeActivatedMail composing email to send");
+
+        String emailBody = "Hi " + user.getFirstName() +", " + "\n\n" +
+                "Your account has been temporarily deactivated. " +
+                "Please contact technical support team if you think was a mistake." +
+                "\n\n" +
+                "- Team 'Dummy Ecommerce Application' ";
+
+        sendEmail(user.getEmail(), emailBody, DEACTIVATION_SUBJECT);
+        logger.info("EmailService::sendDeActivatedMail execution ended.");
     }
 }

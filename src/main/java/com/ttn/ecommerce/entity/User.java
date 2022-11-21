@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ttn.ecommerce.utils.Auditable;
 import lombok.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,9 +43,11 @@ public class User extends Auditable<String> {
     private Date passwordUpdateDate;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Seller seller;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Customer customer;
 
     @OneToOne

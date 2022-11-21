@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ttn.ecommerce.utils.Auditable;
 import lombok.*;
 
@@ -24,5 +25,6 @@ public class Customer extends Auditable<String>  {
     private User user;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Address> address = new ArrayList<>();
 }
