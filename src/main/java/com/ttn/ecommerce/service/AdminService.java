@@ -63,7 +63,7 @@ public class AdminService {
             requiredCustomers.add(customerResponseDTO);
         }
 
-        logger.debug("AdminService::listAllCustomers converting returning list of CustomerResponseDTO");
+        logger.debug("AdminService::listAllCustomers returning list of CustomerResponseDTO");
 
         logger.info("AdminService::listAllCustomers execution ended.");
         return requiredCustomers;

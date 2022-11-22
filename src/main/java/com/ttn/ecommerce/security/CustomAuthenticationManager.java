@@ -51,9 +51,9 @@ public class CustomAuthenticationManager implements AuthenticationManager {
             logger.error("Exception occurred while authenticating");
             throw new UsernameNotFoundException("Invalid credentials");
         }
-        if(user.isLocked()){
+        if(user.isLocked() || user.isActive() == false ){
             logger.error("Exception occurred while authenticating");
-            throw new BadCredentialsException("Account is locked"); // change the exception
+            throw new BadCredentialsException("Account is locked/inactive"); // change the exception
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {

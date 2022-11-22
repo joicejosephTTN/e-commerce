@@ -59,14 +59,14 @@ public class SellerRepositoryTests {
     @Test
     @Order(2)
     public void getSellerTest(){
-        Seller seller = sellerRepo.findByGst("GST0001FFF").get();
+        Seller seller = sellerRepo.findByGst("GST0001FFF");
         Assertions.assertThat(seller.getGst()).isEqualTo("GST0001FFF");
     }
 
     @Test
     @Order(3)
     public void updateSellerTest(){
-        Seller seller = sellerRepo.findByGst("GST0001FFF").get();
+        Seller seller = sellerRepo.findByGst("GST0001FFF");
         seller.setCompanyContact("0123456789");
 
         Seller sellerUpdated = sellerRepo.save(seller);
@@ -78,10 +78,10 @@ public class SellerRepositoryTests {
     @Test
     @Order(4)
     public void deleteSellerTest(){
-        Seller seller = sellerRepo.findByGst("GST0001FFF").get();
+        Seller seller = sellerRepo.findByGst("GST0001FFF");
         sellerRepo.delete(seller);
 
-        Optional<Seller> optionalSeller = sellerRepo.findByGst("GST0001FFF");
+        Optional<Seller> optionalSeller = Optional.ofNullable(sellerRepo.findByGst("GST0001FFF"));
 
         Seller dummySeller = null;
 
