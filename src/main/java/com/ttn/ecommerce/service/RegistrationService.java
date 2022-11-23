@@ -3,6 +3,7 @@ import com.ttn.ecommerce.controller.RegistrationController;
 import com.ttn.ecommerce.exception.PasswordDoNotMatchException;
 import com.ttn.ecommerce.exception.UserAlreadyExistsException;
 import com.ttn.ecommerce.entity.*;
+import com.ttn.ecommerce.model.AddressDTO;
 import com.ttn.ecommerce.model.CustomerDTO;
 import com.ttn.ecommerce.model.SellerDTO;
 import com.ttn.ecommerce.repository.*;
@@ -82,11 +83,13 @@ public class RegistrationService {
 
                 seller.setUser(user);
 
+                AddressDTO addressDTO = sellerDTO.getAddress();
+
                 Address address = new Address();
                 address.setCity(sellerDTO.getAddress().getCity());
                 address.setState(sellerDTO.getAddress().getState());
                 address.setAddressLine(sellerDTO.getAddress().getAddressLine());
-                address.setZipCode(sellerDTO.getAddress().getZipCode());
+                address.setZipCode(sellerDTO.getAddress().getPinCode());
                 address.setCountry(sellerDTO.getAddress().getCountry());
                 address.setLabel(sellerDTO.getAddress().getLabel());
 
@@ -147,7 +150,7 @@ public class RegistrationService {
                 address.setCity(addressDTO.getCity());
                 address.setState(addressDTO.getState());
                 address.setAddressLine(addressDTO.getAddressLine());
-                address.setZipCode(addressDTO.getZipCode());
+                address.setZipCode(addressDTO.getPinCode());
                 address.setCountry(addressDTO.getCountry());
                 address.setLabel(addressDTO.getLabel());
                 address.setCustomer(customer);

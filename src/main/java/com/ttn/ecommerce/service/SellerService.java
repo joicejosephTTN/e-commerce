@@ -3,14 +3,18 @@ package com.ttn.ecommerce.service;
 import com.ttn.ecommerce.entity.Address;
 import com.ttn.ecommerce.entity.Seller;
 import com.ttn.ecommerce.entity.User;
+import com.ttn.ecommerce.exception.PasswordDoNotMatchException;
 import com.ttn.ecommerce.model.AddressDTO;
-import com.ttn.ecommerce.model.SellerProfileDTO;
+import com.ttn.ecommerce.model.SellerUpdateDTO;
+import com.ttn.ecommerce.model.SellerViewDTO;
+import com.ttn.ecommerce.repository.AddressRepository;
 import com.ttn.ecommerce.repository.SellerRepository;
 import com.ttn.ecommerce.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.beans.PropertyDescriptor;
@@ -19,6 +23,13 @@ import java.util.Set;
 
 @Service
 public class SellerService {
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    AddressRepository addressRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -40,18 +51,18 @@ public class SellerService {
     }
 
 
-    public SellerProfileDTO fetchProfile(String email){
+    public SellerViewDTO fetchProfile(String email){
         User user = userRepository.findUserByEmail(email);
         Seller seller = user.getSeller();
 
-        SellerProfileDTO sellerProfileDTO = new SellerProfileDTO();
+        SellerViewDTO sellerViewDTO = new SellerViewDTO();
 
         // converting seller to appropriate responseDTO
-        sellerProfileDTO.setUserId(user.getId());
-        sellerProfileDTO.setFirstName(user.getFirstName());
-        sellerProfileDTO.setLastName(user.getLastName());
+        sellerViewDTO.setUserId(user.getId());
+        sellerViewDTO.setFirstName(user.getFirstName());
+        sellerViewDTO.setLastName(user.getLastName());
 
-        //converting Address to AddressDTO
+        // converting Address to AddressDTO
         Address address = seller.getAddress();
         AddressDTO addressDTO = new AddressDTO();
         addressDTO.setAddressLine(address.getAddressLine());
@@ -59,28 +70,53 @@ public class SellerService {
         addressDTO.setState(address.getState());
         addressDTO.setLabel(address.getLabel());
         addressDTO.setCountry(address.getCountry());
-        addressDTO.setZipCode(address.getZipCode());
+        addressDTO.setPinCode(address.getZipCode());
 
 
-        sellerProfileDTO.setAddress(addressDTO);
-        sellerProfileDTO.setActive(user.isActive());
-        sellerProfileDTO.setGst(seller.getGst());
-        sellerProfileDTO.setCompanyName(seller.getCompanyName());
-        sellerProfileDTO.setCompanyContact(seller.getCompanyContact());
+        sellerViewDTO.setAddress(addressDTO);
+        sellerViewDTO.setActive(user.isActive());
+        sellerViewDTO.setGst(seller.getGst());
+        sellerViewDTO.setCompanyName(seller.getCompanyName());
+        sellerViewDTO.setCompanyContact(seller.getCompanyContact());
 
-        return sellerProfileDTO;
+        return sellerViewDTO;
     }
 
-    public String updateProfile(String email, SellerProfileDTO sellerProfileDTO){
+    public String updateProfile(String email, SellerUpdateDTO sellerUpdateDTO){
+        // get associated user,seller and address
         User user = userRepository.findUserByEmail(email);
         Seller seller = user.getSeller();
+        Address address = seller.getAddress();
 
-        BeanUtils.copyProperties(sellerProfileDTO, user, getNullPropertyNames(sellerProfileDTO));
-        BeanUtils.copyProperties(sellerProfileDTO, seller, getNullPropertyNames(sellerProfileDTO));
+        // extract addressDTO object from the incoming request
+        AddressDTO addressDTO = sellerUpdateDTO.getAddress();
+
+        //partial update of address - ignoring null properties received in request
+        BeanUtils.copyProperties(addressDTO, address, getNullPropertyNames(addressDTO));
+
+        // saving updates
+        address.setSeller(seller);
+        addressRepository.save(address);
+
+        // partial updates
+        BeanUtils.copyProperties(sellerUpdateDTO, user, getNullPropertyNames(sellerUpdateDTO));
+        BeanUtils.copyProperties(sellerUpdateDTO, seller, getNullPropertyNames(sellerUpdateDTO));
+        // saving updates
         userRepository.save(user);
         sellerRepository.save(seller);
         return "Updated successfully.";
 
+    }
+
+    public String updatePassword(String email, String password, String confirmPass){
+        User user = userRepository.findUserByEmail(email);
+        if(!password.equals(confirmPass)){
+            throw new PasswordDoNotMatchException("Password do not match.");
+        }
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        emailService.sendSuccessfulChangeMail(user);
+        return "Password updated successfully.";
     }
 }
 

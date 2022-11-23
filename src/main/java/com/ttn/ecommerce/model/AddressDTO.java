@@ -1,35 +1,39 @@
 package com.ttn.ecommerce.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
-@Data
+@Getter
+@Setter
 public class AddressDTO {
-    @NotEmpty(message = "Field is mandatory.")
-    @Pattern(regexp="(^[A-Za-z]*$).{2,30}",message = "Invalid Input. " +
-            "Can only contain alphabets. Must contain be between 2-30 characters.")
+
+    @NotEmpty(message = "This is a mandatory field.")
+    @Pattern(regexp="(^[A-Za-z ]*$)",message = "Can only contain alphabets.")
+    @Size(min = 2,max = 30)
     private String city;
 
-    @NotEmpty(message = "Field is mandatory.")
-    @Pattern(regexp="(^[A-Za-z]*$).{2,30}",message = "Invalid Input. " +
-            "Can only contain alphabets. Must contain be between 2-30 characters.")
+    @NotEmpty(message = "This is a mandatory field.")
+    @Pattern(regexp="(^[A-Za-z ]*$)",message = "Can only contain alphabets.")
+    @Size(min = 2,max = 30)
     private String state;
 
-    @NotEmpty(message = "Field is mandatory.")
-    @Pattern(regexp="(^[A-Za-z]*$).{2,30}",message = "Invalid Input. " +
-            "Can only contain alphabets. Must contain be between 2-30 characters.")
+    @NotEmpty(message = "This is a mandatory field.")
+    @Pattern(regexp="(^[A-Za-z ]*$)",message = "Can only contain alphabets.")
+    @Size(min = 2,max = 30)
     private String country;
 
-    @NotEmpty(message = "Field is mandatory.")
-    @Pattern(regexp="(^[A-Za-z]*$).{2,50}",message = "Invalid Input. " +
-            "Can only contain alphabets. Must contain be between 2-50 characters.")
+    @NotEmpty(message = "This is a mandatory field.")
+    @Pattern(regexp="(^[A-Za-z0-9/., -]*$)",message = "Can only contain alphabets, numbers and '/'.")
+    @Size(min = 2,max = 30)
     private String addressLine;
 
-    @NotEmpty(message = "Field is mandatory.")
-    @Pattern(regexp = "^\\d{6}$", message = "Enter a valid six-digit pincode.")
-    private long zipCode;
+    @NotEmpty(message = "This is a mandatory field.")
+    @Pattern(regexp="(^[0-9]*$)",message = "Can only contain numbers.")
+    @Size(min = 6,max = 6,message = "Zip code should only have 6 digits.")
+    private String pinCode;
 
     private String label;
+
 }

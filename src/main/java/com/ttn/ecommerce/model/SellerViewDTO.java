@@ -1,12 +1,9 @@
 package com.ttn.ecommerce.model;
 
-import com.ttn.ecommerce.entity.Address;
 import lombok.Data;
 
-import javax.validation.Valid;
-
 @Data
-public class SellerProfileDTO {
+public class SellerViewDTO {
     private long userId;
     private String firstName;
     private String lastName;
@@ -14,6 +11,5 @@ public class SellerProfileDTO {
     private String companyContact;
     private String companyName;
     private String gst;
-    @Valid
     private AddressDTO address;
 }

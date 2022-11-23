@@ -4,10 +4,7 @@ import com.ttn.ecommerce.entity.Address;
 import lombok.Data;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @Data
 
@@ -26,6 +23,6 @@ public class SellerDTO extends UserDTO{
     @NotEmpty(message = "Company Name is mandatory.")
     @Size(max=30, message = "Enter a valid company name.")
     private String companyName;
-
+    @Valid
     private AddressDTO address;
 }

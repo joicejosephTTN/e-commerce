@@ -48,7 +48,7 @@ public class AdminController {
 
 
     @PatchMapping(path="/activate")
-    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String>  enableUser(@RequestParam("id") Long id){
         logger.info("AdminController::enableUser request body: "+ id);
         String response = adminService.activateUser(id);

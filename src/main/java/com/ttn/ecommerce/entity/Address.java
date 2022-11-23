@@ -24,7 +24,7 @@ public class Address extends Auditable<String> {
 
     private String addressLine;
 
-    private long zipCode;
+    private String zipCode;
 
     private String label;
 
