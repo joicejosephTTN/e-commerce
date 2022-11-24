@@ -89,7 +89,7 @@ public class RegistrationService {
                 address.setCity(sellerDTO.getAddress().getCity());
                 address.setState(sellerDTO.getAddress().getState());
                 address.setAddressLine(sellerDTO.getAddress().getAddressLine());
-                address.setZipCode(sellerDTO.getAddress().getPinCode());
+                address.setZipCode(sellerDTO.getAddress().getZipCode());
                 address.setCountry(sellerDTO.getAddress().getCountry());
                 address.setLabel(sellerDTO.getAddress().getLabel());
 
@@ -142,6 +142,7 @@ public class RegistrationService {
             Customer customer = new Customer();
             customer.setContact(customerDTO.getContact());
             customer.setUser(user);
+            customerRepository.save(customer);
 
             // multiple address -- might require separate logic
 
@@ -150,7 +151,7 @@ public class RegistrationService {
                 address.setCity(addressDTO.getCity());
                 address.setState(addressDTO.getState());
                 address.setAddressLine(addressDTO.getAddressLine());
-                address.setZipCode(addressDTO.getPinCode());
+                address.setZipCode(addressDTO.getZipCode());
                 address.setCountry(addressDTO.getCountry());
                 address.setLabel(addressDTO.getLabel());
                 address.setCustomer(customer);
@@ -159,7 +160,7 @@ public class RegistrationService {
 
             });
 
-            customerRepository.save(customer);
+
             userRepository.save(user);
 
             // sending an activation email

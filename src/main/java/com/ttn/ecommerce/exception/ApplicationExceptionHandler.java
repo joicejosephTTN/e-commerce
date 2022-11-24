@@ -82,4 +82,10 @@ public class ApplicationExceptionHandler {
         CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(errorFormat, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(AddressNotFoundException.class)
+    public ResponseEntity<CustomErrorFormat> handleAddressNotFound(AddressNotFoundException ex, WebRequest request) throws  AddressNotFoundException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorFormat, HttpStatus.BAD_REQUEST);
+    }
 }

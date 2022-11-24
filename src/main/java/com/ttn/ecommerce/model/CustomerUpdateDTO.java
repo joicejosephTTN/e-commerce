@@ -2,14 +2,12 @@ package com.ttn.ecommerce.model;
 
 import lombok.Data;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
-public class SellerUpdateDTO {
+public class CustomerUpdateDTO {
 
     @Size(min = 2, max = 30, message = "Must contain 2-30 characters.")
     @Pattern(regexp="(^[A-Za-z]*$)",message = "Invalid Input. " +
@@ -22,15 +20,5 @@ public class SellerUpdateDTO {
     private String lastName;
 
     @Size(min=10,max=10,message = "Enter a valid phone number.")
-    private String companyContact;
-
-    @Size(max=30, message = "Enter a valid company name.")
-    private String companyName;
-
-    @Pattern(regexp = "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$",
-            message = "Enter a valid GST number")
-    private String gst;
-
-    @Valid
-    private AddressUpdateDTO address;
+    private String contact;
 }

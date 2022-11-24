@@ -50,6 +50,7 @@ public class User extends Auditable<String> {
     @JsonManagedReference
     private Customer customer;
 
+    // on deleting a user, does the entry from user_role get deleted?
     @OneToOne
     @JoinTable(name = "user_role",
             joinColumns ={@JoinColumn(name="user_id", referencedColumnName = "id")},

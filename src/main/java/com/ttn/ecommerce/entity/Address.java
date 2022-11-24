@@ -33,7 +33,7 @@ public class Address extends Auditable<String> {
     @JsonBackReference
     private Seller seller;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="customer_id")
     @JsonBackReference
     private Customer customer;

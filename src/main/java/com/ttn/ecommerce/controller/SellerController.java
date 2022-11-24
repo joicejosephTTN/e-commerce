@@ -25,9 +25,9 @@ public class SellerController {
         return sellerService.fetchProfile(authentication.getName());
     }
 
-//    @PreAuthorize("hasAuthority('SELLER')")
+    @PreAuthorize("hasAuthority('SELLER')")
     @PatchMapping(path = "/update_profile")
-    public ResponseEntity<String> updateProfile(Authentication authentication,@Valid @RequestBody SellerUpdateDTO sellerUpdateDTO){
+    public ResponseEntity<String> updateProfile(Authentication authentication, @Valid @RequestBody SellerUpdateDTO sellerUpdateDTO){
         String response = sellerService.updateProfile(authentication.getName(), sellerUpdateDTO);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
