@@ -144,7 +144,6 @@ public class RegistrationService {
             customer.setUser(user);
             customerRepository.save(customer);
 
-            // multiple address -- might require separate logic
 
             customerDTO.getAddress().forEach(addressDTO -> {
                 Address address = new Address();

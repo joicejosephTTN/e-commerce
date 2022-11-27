@@ -12,4 +12,5 @@ public class SellerViewDTO {
     private String companyName;
     private String gst;
     private AddressDTO address;
+    private byte[] image;
 }

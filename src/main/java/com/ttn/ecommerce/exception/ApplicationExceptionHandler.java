@@ -88,4 +88,10 @@ public class ApplicationExceptionHandler {
         CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(errorFormat, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidFileFormatException.class)
+    public ResponseEntity<CustomErrorFormat> handleAddressNotFound(InvalidFileFormatException ex, WebRequest request) throws  InvalidFileFormatException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorFormat, HttpStatus.BAD_REQUEST);
+    }
 }

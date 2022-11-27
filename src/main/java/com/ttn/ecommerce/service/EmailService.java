@@ -33,7 +33,7 @@ public class EmailService {
 
         logger.debug("EmailService::sendMail configuring email details");
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setFrom("joice.joseph3198@gmail.com");
+        mailMessage.setFrom("joice.joseph@tothenew.com");
         mailMessage.setTo(toEmail);
         mailMessage.setSubject(subject);
         mailMessage.setText(body);
@@ -111,6 +111,7 @@ public class EmailService {
         logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
     }
 
+    // method to trigger a mail to notify the account activation is awaiting approval
     public void sendAwaitingApprovalMail(User user){
         logger.info("EmailService::sendAwaitingApprovalMail execution started.");
 
@@ -126,6 +127,8 @@ public class EmailService {
 
     }
 
+
+    // method to trigger a mail to notify the account has been locked
     public void sendAccountLockedMail(User user){
         logger.info("EmailService::sendAccountLockedMail execution started.");
 
@@ -141,6 +144,8 @@ public class EmailService {
         logger.info("EmailService::sendAccountLockedMail execution ended.");
 
     }
+
+    // method to trigger a mail to notify that account has been deactivated
 
     public void sendDeActivatedMail(User user) {
         logger.info("EmailService::sendDeActivatedMail execution started.");
