@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.service;
 
+import com.ttn.ecommerce.exception.InvalidTokenException;
 import com.ttn.ecommerce.security.CustomAuthenticationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class AuthenticationService {
             }
         } catch (Exception e) {
             logger.error("An exception occurred while signing out");
-            return ResponseEntity.badRequest().body("Invalid access token");
+            throw new InvalidTokenException("Invalid access token");
         }
         logger.info("AuthenticationService::userSignOut execution ended.");
         return ResponseEntity.ok().body("Access token invalidated successfully");

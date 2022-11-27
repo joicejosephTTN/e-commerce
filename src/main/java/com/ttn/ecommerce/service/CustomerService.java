@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,12 +26,16 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.NotSupportedException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
 public class CustomerService {
 
     Logger logger = LoggerFactory.getLogger(CustomerService.class);
+
+    @Autowired
+    MessageSource messageSource;
 
     @Autowired
     ImageService imageService;
@@ -102,7 +107,7 @@ public class CustomerService {
                     userRepository.save(user);
                     customerRepository.save(customer);
                     logger.info("CustomerService::updateProfile execution ended.");
-                    return "Updated Successfully";
+                    return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
 
                 } catch (IOException e) {
                     logger.error("CustomerService::updateProfile An exception occurred while uploading image");
@@ -110,8 +115,7 @@ public class CustomerService {
                 }
             } else {
                 logger.error("CustomerService::updateProfile An exception occurred while uploading image");
-                throw new InvalidFileFormatException("File type not supported. " +
-                        "Please upload jpg,jpeg,png,bmp image.");
+                throw new InvalidFileFormatException(messageSource.getMessage("api.error.invalidFileType",null, Locale.ENGLISH));
             }
         }
 
@@ -120,7 +124,7 @@ public class CustomerService {
         userRepository.save(user);
         customerRepository.save(customer);
         logger.info("CustomerService::updateProfile execution ended.");
-        return "Updated Successfully";
+        return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
     }
 
     public String updatePassword(String email, String password, String confirmPass){
@@ -130,14 +134,14 @@ public class CustomerService {
         User user = userRepository.findUserByEmail(email);
         if(!password.equals(confirmPass)){
             logger.error("CustomerService::updatePassword An Exception occurred while updating the password");
-            throw new PasswordDoNotMatchException("Password do not match.");
+            throw new PasswordDoNotMatchException(messageSource.getMessage("api.error.invalidFileType",null, Locale.ENGLISH));
         }
         logger.debug("CustomerService::updatePassword setting up the new password");
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
         emailService.sendSuccessfulChangeMail(user);
         logger.info("CustomerService::updatePassword execution ended.");
-        return "Password updated successfully.";
+        return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
     }
 
     public List<Address> fetchAddress(String email){
@@ -170,7 +174,7 @@ public class CustomerService {
         // save the address
         addressRepository.save(address);
         logger.debug("CustomerService::addAddress execution ended.");
-        return "Address added successfully";
+        return messageSource.getMessage("api.response.addressAdd",null, Locale.ENGLISH);
     }
 
 
@@ -190,14 +194,14 @@ public class CustomerService {
                 logger.debug("CustomerService::deleteAddress deleting the address");
                 addressRepository.delete(reqdAddress);
                 logger.info("CustomerService::deleteAddress execution ended.");
-                return "Address deleted successfully.";
+                return messageSource.getMessage("api.response.addressDelete",null, Locale.ENGLISH);
             }
             logger.error("CustomerService::deleteAddress exception occurred while deleting");
-            throw new AddressNotFoundException("Address not associated with logged in customer");
+            throw new AddressNotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
 
         }
         logger.error("CustomerService::deleteAddress exception occurred while deleting");
-        throw new AddressNotFoundException("Address not found.");
+        throw new AddressNotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
     }
 
     public String updateAddress(String email, Long addressId, AddressUpdateDTO addressDTO){
@@ -226,14 +230,12 @@ public class CustomerService {
                 addressRepository.save(reqdAddress);
 
                 logger.info("CustomerService::updateAddress execution ended.");
-                return "Address updated successfully.";
+                return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
             }
             logger.error("CustomerService::updateAddress exception occurred while updating the address");
-            throw new AddressNotFoundException("Address not found.");
-
+            throw new AddressNotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
         }
         logger.error("CustomerService::updateAddress exception occurred while updating the address");
-        throw new AddressNotFoundException("Address not found.");
-
+        throw new AddressNotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
     }
 }

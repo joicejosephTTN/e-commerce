@@ -33,23 +33,6 @@ public class NotificationTokenService {
     NotificationTokenRepository notificationTokenRepository;
 
 
-    /*
-    Scope of improvement:
-    Figure out how to get rid of nested if-else
-
-    currently returning appropriate string response for every situation in the service,
-    controller returns ResponseEntity<String> with the string response and
-    HttpStatus.OK (which shouldn't always be the case)
-
-
-    Possible solutions:
-    1 - Service returns appropriate ResponseEntity<String> with appropriate string response and status code,
-        Controller passes that along. ( service generating ResponseEntity<> is a bad practise? )
-    2-  Service throws custom exception in un-ideal situations, which will return appropriate ResponseEntity<>.
-        For ideal situation return appropriate string response and controller will return ResponseEntity<> with
-        string response and HTTPStatus.Ok ( appropriate for ideal conditions). ( Would require writing more code ?)
-
-     */
     public String activateUserAccount(String token){
 
         logger.info("NotificationTokenService::activateUserAccount execution started.");

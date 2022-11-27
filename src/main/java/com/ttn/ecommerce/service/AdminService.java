@@ -121,7 +121,6 @@ public class AdminService {
         }
         else{
             logger.error("AdminService::activateUser exception occurred while activating account");
-            // add exception in handler
             throw new UserNotFoundException("User not found.");
         }
 
@@ -147,7 +146,6 @@ public class AdminService {
         }
         else{
             logger.error("AdminService::deactivateUser exception occurred while deactivating account");
-            // add exception in handler
             throw new UserNotFoundException("User not found.");
         }
 
