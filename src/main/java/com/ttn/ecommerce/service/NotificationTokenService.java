@@ -11,15 +11,20 @@ import com.ttn.ecommerce.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Service
 public class NotificationTokenService {
 
     Logger logger = LoggerFactory.getLogger(NotificationTokenService.class);
+
+    @Autowired
+    MessageSource messageSource;
 
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
@@ -50,8 +55,7 @@ public class NotificationTokenService {
                 notificationTokenRepository.delete(activationToken);
                 emailService.sendActivationMail(user);
                 logger.error("Exception occurred while activating account");
-                throw new LinkExpiredException("The link you followed has expired, " +
-                        "a new activation mail has been sent to the registered email.\"");
+                throw new LinkExpiredException(messageSource.getMessage("api.error.activationLinkExpired",null, Locale.ENGLISH));
             }
             else{
                 // activate account, delete token & trigger a new mail notifying that account is active
@@ -63,12 +67,12 @@ public class NotificationTokenService {
                 logger.debug("NotificationTokenService::activateUserAccount activated account");
                 logger.info("NotificationTokenService::activateUserAccount execution ended.");
 
-                return "Account activated.";
+                return messageSource.getMessage("api.response.userAccountActivated",null, Locale.ENGLISH);
             }
     }
         else {
             logger.error("Exception occurred while activating account");
-            throw new InvalidTokenException("Invalid token.") ;
+            throw new InvalidTokenException(messageSource.getMessage("api.error.invalidToken",null, Locale.ENGLISH));
         }
     }
 
@@ -82,13 +86,13 @@ public class NotificationTokenService {
         User user = userRepository.findUserByEmail(email);
         if(user==null){
             logger.error("Exception occurred while resending the mail");
-            throw new BadCredentialsException("Invalid Email.");
+            throw new BadCredentialsException(messageSource.getMessage("api.error.invalidEmail",null, Locale.ENGLISH));
         } else{
             // check if account is already active
             if(user.isActive()){
                 logger.debug("NotificationTokenService::resendActivationMail account is already active");
                 logger.info("NotificationTokenService::resendActivationMail execution ended.");
-                return "Account is already active.";
+                return messageSource.getMessage("api.response.userAlreadyActive",null, Locale.ENGLISH);
             }
             // if inactive, check if there is an existing activation token
             else{
@@ -107,7 +111,7 @@ public class NotificationTokenService {
         }
         logger.debug("NotificationTokenService::resendActivationMail mail sent.");
         logger.info("NotificationTokenService::resendActivationMail execution ended.");
-        return "Activation mail has been sent to the provided email.";
+        return messageSource.getMessage("api.response.resendActivation",null, Locale.ENGLISH);
     }
 
     public String forgotPassword(String email){
@@ -117,7 +121,7 @@ public class NotificationTokenService {
         User user = userRepository.findUserByEmail(email);
         if(user==null){
             logger.error("Exception occurred while sending the mail");
-            throw new BadCredentialsException("Invalid Email.");
+            throw new BadCredentialsException(messageSource.getMessage("api.error.invalidEmail",null, Locale.ENGLISH));
         } else{
             // check if account is active
             if(user.isActive()){
@@ -135,13 +139,13 @@ public class NotificationTokenService {
             // in case account is inactive
             else{
                 logger.error("Exception occurred while sending the mail");
-                throw new AccountInActiveException("Account is in-active. Request cannot be processed.");
+                throw new AccountInActiveException(messageSource.getMessage("api.error.accountInactive",null, Locale.ENGLISH));
 
             }
         }
         logger.debug("NotificationTokenService::forgotPassword mail sent");
         logger.info("NotificationTokenService::forgotPassword execution ended.");
-        return "A mail has been sent to the provided email.";
+        return messageSource.getMessage("api.response.forgotPassword",null, Locale.ENGLISH);
     }
 
     public String resetPassword(String token, String password, String confirmPassword){
@@ -159,13 +163,13 @@ public class NotificationTokenService {
                 // delete the token
                 notificationTokenRepository.delete(passwordToken);
                 logger.error("Exception occurred while changing the password");
-                throw new LinkExpiredException("Link has expired. Request cannot be processed further.") ;
+                throw new LinkExpiredException(messageSource.getMessage("api.error.linkExpired",null, Locale.ENGLISH)) ;
             }
             else{
                 // check if passwords match
                 if(!(password.equals(confirmPassword))){
                     logger.error("Exception occurred while changing the password");
-                    throw new PasswordDoNotMatchException("Passwords do not match.");
+                    throw new PasswordDoNotMatchException(messageSource.getMessage("api.error.passwordDoNotMatch",null, Locale.ENGLISH));
                 }
                 // change password
                 user.setPassword(passwordEncoder.encode(password));
@@ -173,12 +177,12 @@ public class NotificationTokenService {
                 notificationTokenRepository.delete(passwordToken);
                 emailService.sendSuccessfulChangeMail(user);
                 logger.info("NotificationTokenService::resetPassword execution ended.");
-                return "Password successfully changed.";
+                return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
             }
         }
         else {
             logger.error("Exception occurred while changing the password");
-            throw new InvalidTokenException("Invalid token. Request cannot be processed further.");
+            throw new InvalidTokenException(messageSource.getMessage("api.error.invalidToken",null, Locale.ENGLISH));
         }
     }
 }

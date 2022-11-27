@@ -12,6 +12,7 @@ import com.ttn.ecommerce.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,13 +22,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 
 @Service
 @RequestMapping(path = "api/admin")
 public class AdminService {
+
     Logger logger = LoggerFactory.getLogger(AdminService.class);
+    @Autowired
+    MessageSource messageSource;
 
     @Autowired
     UserRepository userRepository;
@@ -108,7 +113,7 @@ public class AdminService {
             if(user.get().isActive()){
                 logger.debug("AdminService::activateUser account already active");
                 logger.info("AdminService::activateUser execution ended.");
-                return "User is already active.";
+                return messageSource.getMessage("api.response.userAlreadyActive",null, Locale.ENGLISH);
             }
             else {
                 logger.debug("AdminService::activateUser activating account");
@@ -116,12 +121,12 @@ public class AdminService {
                 userRepository.save(user.get());
                 emailService.sendIsActivatedMail(user.get());
                 logger.info("AdminService::activateUser execution ended.");
-                return "Account activated.";
+                return messageSource.getMessage("api.response.userAccountActivated",null, Locale.ENGLISH);
             }
         }
         else{
             logger.error("AdminService::activateUser exception occurred while activating account");
-            throw new UserNotFoundException("User not found.");
+            throw new UserNotFoundException(messageSource.getMessage("api.error.userNotFound",null, Locale.ENGLISH));
         }
 
     }
@@ -136,17 +141,17 @@ public class AdminService {
                 userRepository.save(user.get());
                 emailService.sendDeActivatedMail(user.get());
                 logger.info("AdminService::deactivateUser execution ended.");
-                return "Account is deactivated.";
+                return messageSource.getMessage("api.response.userAccountDeactivated",null, Locale.ENGLISH);
             }
             else {
                 logger.debug("AdminService::deactivateUser account already deactivated");
                 logger.info("AdminService::deactivateUser execution ended.");
-                return "Account is already de-activated.";
+                return messageSource.getMessage("api.response.userAlreadyDeactivated",null, Locale.ENGLISH);
             }
         }
         else{
             logger.error("AdminService::deactivateUser exception occurred while deactivating account");
-            throw new UserNotFoundException("User not found.");
+            throw new UserNotFoundException(messageSource.getMessage("api.error.userNotFound",null, Locale.ENGLISH));
         }
 
     }

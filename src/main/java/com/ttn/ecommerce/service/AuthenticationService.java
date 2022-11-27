@@ -5,6 +5,7 @@ import com.ttn.ecommerce.security.CustomAuthenticationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,12 +18,16 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Locale;
 
 
 @Service
 public class AuthenticationService {
 
     Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+
+    @Autowired
+    MessageSource messageSource;
 
     @Autowired
     TokenStore tokenStore;
@@ -64,10 +69,10 @@ public class AuthenticationService {
             }
         } catch (Exception e) {
             logger.error("An exception occurred while signing out");
-            throw new InvalidTokenException("Invalid access token");
+            throw new InvalidTokenException(messageSource.getMessage("api.error.invalidAccessToken",null, Locale.ENGLISH));
         }
         logger.info("AuthenticationService::userSignOut execution ended.");
-        return ResponseEntity.ok().body("Access token invalidated successfully");
+        return ResponseEntity.ok().body(messageSource.getMessage("api.response.tokenInvalidated",null, Locale.ENGLISH));
     }
 
 

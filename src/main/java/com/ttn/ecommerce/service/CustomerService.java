@@ -134,7 +134,7 @@ public class CustomerService {
         User user = userRepository.findUserByEmail(email);
         if(!password.equals(confirmPass)){
             logger.error("CustomerService::updatePassword An Exception occurred while updating the password");
-            throw new PasswordDoNotMatchException(messageSource.getMessage("api.error.invalidFileType",null, Locale.ENGLISH));
+            throw new PasswordDoNotMatchException(messageSource.getMessage("api.error.passwordDoNotMatch",null, Locale.ENGLISH));
         }
         logger.debug("CustomerService::updatePassword setting up the new password");
         user.setPassword(passwordEncoder.encode(password));

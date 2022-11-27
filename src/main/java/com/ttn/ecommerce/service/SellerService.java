@@ -17,11 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Locale;
 
 
 @Service
@@ -29,15 +31,15 @@ public class SellerService {
     Logger logger = LoggerFactory.getLogger(SellerService.class);
 
     @Autowired
+    MessageSource messageSource;
+    @Autowired
     ImageService imageService;
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
     @Autowired
     EmailService emailService;
-
     @Autowired
     AddressRepository addressRepository;
-
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -117,7 +119,7 @@ public class SellerService {
                     userRepository.save(user);
                     sellerRepository.save(seller);
                     logger.info("SellerService::updateProfile execution ended.");
-                    return "Updated Successfully";
+                    return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
 
                 } catch (IOException e) {
                     logger.error("SellerService::updateProfile An exception occurred while updating profile");
@@ -125,15 +127,14 @@ public class SellerService {
                 }
             } else {
                 logger.error("SellerService::updateProfile An exception occurred while updating profile");
-                throw new InvalidFileFormatException("File type not supported. " +
-                        "Please upload jpg,jpeg,png,bmp image.");
+                throw new InvalidFileFormatException(messageSource.getMessage("api.error.invalidFileType",null, Locale.ENGLISH));
             }
         }
         // saving updates
         userRepository.save(user);
         sellerRepository.save(seller);
         logger.info("SellerService::updateProfile execution ended.");
-        return "Updated successfully.";
+        return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
 
     }
 
@@ -142,14 +143,14 @@ public class SellerService {
         User user = userRepository.findUserByEmail(email);
         if (!password.equals(confirmPass)) {
             logger.error("SellerService::updatePassword an exception occurred while updating");
-            throw new PasswordDoNotMatchException("Password do not match.");
+            throw new PasswordDoNotMatchException(messageSource.getMessage("api.error.passwordDoNotMatch",null, Locale.ENGLISH));
         }
         logger.debug("SellerService::updatePassword updating password");
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
         emailService.sendSuccessfulChangeMail(user);
         logger.info("SellerService::updatePassword execution ended.");
-        return "Password updated successfully.";
+        return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
     }
 }
 
