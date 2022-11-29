@@ -1,8 +1,6 @@
 package com.ttn.ecommerce.controller;
 
-import com.ttn.ecommerce.entity.Category;
 import com.ttn.ecommerce.entity.CategoryMetadataField;
-import com.ttn.ecommerce.entity.CategoryMetadataFieldValue;
 import com.ttn.ecommerce.model.*;
 import com.ttn.ecommerce.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,12 +78,21 @@ public class CategoryController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/metadata/values")
-    public ResponseEntity<CategoryMetadataFieldValue> addMetaFieldValues(@RequestBody MetaFieldValueDTO metaFieldValueDTO){
+    public ResponseEntity<MetaFieldValueResponseDTO> addMetaFieldValues(@RequestBody MetaFieldValueDTO metaFieldValueDTO){
         Long categoryId = metaFieldValueDTO.getCategoryId();
         Long metaFieldId = metaFieldValueDTO.getMetadataId();
-        CategoryMetadataFieldValue response = categoryService.addMetaFieldValues(metaFieldValueDTO);
+        MetaFieldValueResponseDTO response = categoryService.addMetaFieldValues(metaFieldValueDTO);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')") // CHANGE TO SELLER
+    @GetMapping("/seller")
+    public ResponseEntity< List<SellerCategoryResponseDTO> > viewSellerCategory(){
+        List<SellerCategoryResponseDTO> responseList = categoryService.viewSellerCategory();
+        return new ResponseEntity<>(responseList,HttpStatus.OK);
+    }
+
+
 
 
 

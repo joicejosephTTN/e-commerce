@@ -1,5 +1,6 @@
 package com.ttn.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -25,7 +26,7 @@ public class Category {
     private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonBackReference
     private Set<Category> children = new HashSet<>();
 
 }
