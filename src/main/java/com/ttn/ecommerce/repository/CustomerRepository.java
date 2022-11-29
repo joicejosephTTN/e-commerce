@@ -15,7 +15,4 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     Optional<Customer> findByContact(String contact);
 
-//    @Query(value = "select u.id, u.firstName, u.middleName, u.lastName, u.isActive from User u " +
-//            "where u.customer IS NOT NULL ")
-//    List<User> getAdminCustomers();
 }

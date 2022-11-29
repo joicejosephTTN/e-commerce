@@ -37,6 +37,12 @@ public class ApplicationExceptionHandler {
         return errorMap;
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<CustomErrorFormat> handleBadRequestException(BadRequestException ex, WebRequest request) throws BadRequestException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorFormat, HttpStatus.BAD_REQUEST);
+    }
+
 
     @ExceptionHandler(PasswordDoNotMatchException.class)
     public ResponseEntity<CustomErrorFormat> handlePasswordDoNotMatch(PasswordDoNotMatchException ex, WebRequest request) throws  PasswordDoNotMatchException{
