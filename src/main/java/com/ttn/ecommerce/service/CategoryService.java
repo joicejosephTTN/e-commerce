@@ -236,6 +236,7 @@ public class CategoryService {
         List<Category> categoryList = categoryRepository.findAll();
 
         List<SellerCategoryResponseDTO> resultList = new ArrayList<>();
+
         // filter out leaf nodes
         for(Category category: categoryList){
             if(category.getChildren().isEmpty()){

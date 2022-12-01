@@ -1,6 +1,7 @@
 package com.ttn.ecommerce.service;
 
 import com.ttn.ecommerce.entity.NotificationToken;
+import com.ttn.ecommerce.entity.Product;
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.NotificationTokenRepository;
 import org.slf4j.Logger;
@@ -152,10 +153,23 @@ public class EmailService {
         logger.debug("EmailService::sendDeActivatedMail composing email to send");
 
         String subject = messageSource.getMessage("api.email.deactivationSubject",null,Locale.ENGLISH);
-        String body = messageSource.getMessage("api.email.acccountDeactivatedMail",null, Locale.ENGLISH);
+        String body = messageSource.getMessage("api.email.accountDeactivatedMail",null, Locale.ENGLISH);
         body = body.replace("[[name]]", user.getFirstName());
 
         sendEmail(user.getEmail(), body, subject);
         logger.info("EmailService::sendDeActivatedMail execution ended.");
+    }
+
+    public void sendNewProductMail(Product product) {
+        logger.info("EmailService::sendNewProductMail execution started.");
+
+        logger.debug("EmailService::sendNewProductMail composing email to send");
+        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
+        String body = messageSource.getMessage("api.email.newProductAddedMail",null, Locale.ENGLISH);
+        body = body.replace("[[name]]", "Admin");
+        body = body.replace("[[details]]", product.toString());
+
+        sendEmail("tarunsingh021@gmail.com", body, subject);
+        logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
     }
 }

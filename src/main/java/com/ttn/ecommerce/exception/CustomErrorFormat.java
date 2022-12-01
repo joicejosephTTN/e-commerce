@@ -9,12 +9,12 @@ import java.time.LocalDateTime;
 public class CustomErrorFormat {
     private LocalDateTime timeStamp;
     private String message;
-    private String description;
+    private String path;
     private HttpStatus status;
-    public CustomErrorFormat(LocalDateTime timeStamp, String message, String description, HttpStatus status) {
+    public CustomErrorFormat(LocalDateTime timeStamp, String message, String path, HttpStatus status) {
         this.timeStamp = timeStamp;
         this.message = message;
-        this.description = description;
+        this.path = path;
         this.status = status;
     }
 }
