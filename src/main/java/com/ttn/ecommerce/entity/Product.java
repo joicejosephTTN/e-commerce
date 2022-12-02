@@ -1,12 +1,16 @@
 package com.ttn.ecommerce.entity;
 
 import com.ttn.ecommerce.utils.Auditable;
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
 public class Product extends Auditable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "product_gen")
@@ -30,5 +34,7 @@ public class Product extends Auditable<String> {
 
     private boolean isActive;
     private boolean isDeleted;
+    private boolean isCancellable;
+    private boolean isReturnable;
 
 }

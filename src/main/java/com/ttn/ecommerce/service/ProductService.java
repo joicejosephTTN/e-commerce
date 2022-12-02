@@ -70,6 +70,8 @@ public class ProductService {
         // save product
         Product product = new Product();
         product.setActive(false);
+        product.setCancellable(false);
+        product.setReturnable(false);
         product.setName(productName);
         product.setDescription(productDescription);
         product.setBrand(brandName);
@@ -138,7 +140,9 @@ public class ProductService {
             productResponseDTO.setName(product.get().getName());
             productResponseDTO.setBrand(product.get().getBrand());
             productResponseDTO.setDescription(product.get().getDescription());
-            productResponseDTO.setActive(product.get().isActive());
+            productResponseDTO.setIsActive(product.get().isActive());
+            productResponseDTO.setIsReturnable(product.get().isReturnable());
+            productResponseDTO.setIsCancellable(product.get().isCancellable());
             productResponseDTO.setCategory(product.get().getCategory());
             return productResponseDTO;
         } else {
@@ -162,8 +166,9 @@ public class ProductService {
             productResponseDTO.setName(product.getName());
             productResponseDTO.setBrand(product.getBrand());
             productResponseDTO.setDescription(product.getDescription());
-            productResponseDTO.setActive(product.isActive());
-
+            productResponseDTO.setIsActive(product.isActive());
+            productResponseDTO.setIsReturnable(product.isCancellable());
+            productResponseDTO.setIsCancellable(product.isCancellable());
             productResponseDTO.setCategory(product.getCategory());
             productResponseDTOList.add(productResponseDTO);
 
@@ -213,6 +218,202 @@ public class ProductService {
         } else {
             throw new BadRequestException(messageSource.getMessage("api.error.sellerNotAssociated", null, Locale.ENGLISH));
         }
+    }
+
+
+    public ProductResponseDTO adminViewProduct(Long id){
+        // check if ID is valid
+        Optional<Product> product = productRepository.findById(id);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,Locale.ENGLISH));
+        }
+
+        // convert to appropriate DTO
+        ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+        productResponseDTO.setId(product.get().getId());
+        productResponseDTO.setName(product.get().getName());
+        productResponseDTO.setBrand(product.get().getBrand());
+        productResponseDTO.setDescription(product.get().getDescription());
+        productResponseDTO.setIsActive(product.get().isActive());
+        productResponseDTO.setIsReturnable(product.get().isReturnable());
+        productResponseDTO.setIsCancellable(product.get().isCancellable());
+        productResponseDTO.setCategory(product.get().getCategory());
+
+        return productResponseDTO;
+    }
+
+    public List<ProductResponseDTO> adminViewAllProducts(){
+        // fetch all products
+        List<Product> products = productRepository.findAll();
+        // check if records are present
+        if(products.isEmpty()){
+            throw new BadRequestException(messageSource.getMessage("api.error.productNotFound",null,Locale.ENGLISH));
+        }
+
+        // convert to appropriate DTO
+        List<ProductResponseDTO> productResponseDTOList= new ArrayList<>();
+        for(Product product: products){
+
+            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+
+            productResponseDTO.setId(product.getId());
+            productResponseDTO.setName(product.getName());
+            productResponseDTO.setBrand(product.getBrand());
+            productResponseDTO.setDescription(product.getDescription());
+            productResponseDTO.setIsActive(product.isActive());
+            productResponseDTO.setIsCancellable(product.isCancellable());
+            productResponseDTO.setIsReturnable(product.isReturnable());
+            productResponseDTO.setCategory(product.getCategory());
+            productResponseDTOList.add(productResponseDTO);
+        }
+        return productResponseDTOList;
+
+    }
+
+    public String activateProduct(Long id){
+        // check if ID is valid
+        Optional<Product> product = productRepository.findById(id);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,Locale.ENGLISH));
+        }
+        if (product.get().isActive()){
+            throw new BadRequestException(messageSource.getMessage("api.error.productAlreadyActive",null,Locale.ENGLISH));
+
+        }else{
+            // update status & save
+            product.get().setActive(true);
+            productRepository.save(product.get());
+
+            // trigger mail
+            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+            BeanUtils.copyProperties(product.get(),productResponseDTO);
+            User productOwner = product.get().getSeller().getUser();
+            emailService.sendProductActivationMail(productResponseDTO,productOwner);
+
+            return messageSource.getMessage("api.response.activationSuccess",null,Locale.ENGLISH);
+        }
+
+    }
+
+
+    public String deactivateProduct(Long id){
+        // check if ID is valid
+        Optional<Product> product = productRepository.findById(id);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,Locale.ENGLISH));
+        }
+        if (product.get().isActive()==false){
+            throw new BadRequestException(messageSource.getMessage("api.error.productAlreadyInactive",null,Locale.ENGLISH));
+
+        }else{
+            // update status & save
+            product.get().setActive(false);
+            productRepository.save(product.get());
+
+            // trigger mail
+            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+            BeanUtils.copyProperties(product.get(), productResponseDTO);
+            User productOwner = product.get().getSeller().getUser();
+            emailService.sendProductDeactivationMail(productResponseDTO,productOwner);
+
+            return messageSource.getMessage("api.response.deactivationSuccess",null,Locale.ENGLISH);
+        }
+
+    }
+
+    public ProductResponseDTO sellerViewProduct(Long productId){
+        // check if ID is valid
+        Optional<Product> product = productRepository.findById(productId);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,Locale.ENGLISH));
+        }
+        // check product status
+        if (product.get().isDeleted() || product.get().isActive() == false ){
+            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,Locale.ENGLISH));
+        }
+
+        // convert to appropriate DTO
+        ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+        productResponseDTO.setId(product.get().getId());
+        productResponseDTO.setName(product.get().getName());
+        productResponseDTO.setBrand(product.get().getBrand());
+        productResponseDTO.setDescription(product.get().getDescription());
+        productResponseDTO.setIsActive(product.get().isActive());
+        productResponseDTO.setIsReturnable(product.get().isReturnable());
+        productResponseDTO.setIsCancellable(product.get().isCancellable());
+        productResponseDTO.setCategory(product.get().getCategory());
+
+        return productResponseDTO;
+    }
+
+    public List<ProductResponseDTO> sellerViewAllProducts(Long categoryId){
+
+        // check if category ID is valid
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new BadRequestException(
+                messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)
+        ));
+
+        // check if category is a leaf node
+        if (category.getChildren()!=null){
+            throw new BadRequestException(messageSource.getMessage("api.error.notLeafNode",null,Locale.ENGLISH));
+        }
+
+         List<Product> products = productRepository.findByCategory(category);
+        // check if records are present
+        if(products.isEmpty()){
+            throw new BadRequestException(messageSource.getMessage("api.error.productNotFound",null,Locale.ENGLISH));
+        }
+
+        // convert to appropriate DTO
+        List<ProductResponseDTO> productResponseDTOList= new ArrayList<>();
+        for(Product product: products){
+
+            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+
+            productResponseDTO.setId(product.getId());
+            productResponseDTO.setName(product.getName());
+            productResponseDTO.setBrand(product.getBrand());
+            productResponseDTO.setDescription(product.getDescription());
+            productResponseDTO.setIsActive(product.isActive());
+            productResponseDTO.setIsCancellable(product.isCancellable());
+            productResponseDTO.setIsReturnable(product.isReturnable());
+            productResponseDTO.setCategory(product.getCategory());
+            productResponseDTOList.add(productResponseDTO);
+        }
+        return productResponseDTOList;
+
+    }
+
+    public List<Product> viewSimilarProducts(Long productId){
+
+        // check if ID is valid
+        Optional<Product> product = productRepository.findById(productId);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,Locale.ENGLISH));
+        }
+
+        // check product status
+        if (product.get().isDeleted() || product.get().isActive() == false ){
+            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,Locale.ENGLISH));
+        }
+
+        // find similar products
+        Category associatedCategory = product.get().getCategory();
+        List<Product> similarProducts = new ArrayList<>();
+
+        // add other products associated to its category to similar list
+        List<Product> siblingProducts = productRepository.findByCategory(associatedCategory);
+
+        for(Product individualProduct: siblingProducts){
+            similarProducts.add(individualProduct);
+        }
+
+        if(similarProducts.size()==1){
+            throw new BadRequestException(messageSource.getMessage("api.error.similarProducts",null,Locale.ENGLISH));
+        }
+
+        return similarProducts;
+
     }
 
 

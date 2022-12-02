@@ -55,5 +55,36 @@ public class ProductController{
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     ADMIN related APIs
+     **/
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/admin/{id}")
+    public ResponseEntity<ProductResponseDTO> viewAdminProduct(@PathVariable Long id){
+        ProductResponseDTO response = productService.adminViewProduct(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/admin/")
+    public ResponseEntity<List<ProductResponseDTO>> viewAdminProducts(){
+        List<ProductResponseDTO> response = productService.adminViewAllProducts();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/activate/{id}")
+    public ResponseEntity<String> activateProduct(@PathVariable Long id){
+        String response = productService.activateProduct(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/deactivate/{id}")
+    public ResponseEntity<String> deactivateProduct(@PathVariable Long id){
+        String response = productService.deactivateProduct(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
 }

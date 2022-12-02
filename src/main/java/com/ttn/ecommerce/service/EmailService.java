@@ -3,6 +3,7 @@ package com.ttn.ecommerce.service;
 import com.ttn.ecommerce.entity.NotificationToken;
 import com.ttn.ecommerce.entity.Product;
 import com.ttn.ecommerce.entity.User;
+import com.ttn.ecommerce.model.ProductResponseDTO;
 import com.ttn.ecommerce.repository.NotificationTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,6 @@ public class EmailService {
 
     }
 
-
     // method to trigger an activation mail with token
     public void sendActivationMail(User user){
         logger.info("EmailService::sendActivationMail execution started.");
@@ -79,7 +79,6 @@ public class EmailService {
         sendEmail(user.getEmail(), body, subject);
         logger.info("EmailService::sendIsActivatedMail execution ended.");
     }
-
 
     // method to trigger a mail to reset the password
     public void sendForgotPasswordMail(User user){
@@ -146,7 +145,6 @@ public class EmailService {
     }
 
     // method to trigger a mail to notify that account has been deactivated
-
     public void sendDeActivatedMail(User user) {
         logger.info("EmailService::sendDeActivatedMail execution started.");
 
@@ -160,6 +158,7 @@ public class EmailService {
         logger.info("EmailService::sendDeActivatedMail execution ended.");
     }
 
+    // method to trigger a mail to notify that product has been created
     public void sendNewProductMail(Product product) {
         logger.info("EmailService::sendNewProductMail execution started.");
 
@@ -172,4 +171,34 @@ public class EmailService {
         sendEmail("tarunsingh021@gmail.com", body, subject);
         logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
     }
+
+    // method to trigger a mail to notify that product has been activated
+    public void sendProductActivationMail(ProductResponseDTO product,User user) {
+        logger.info("EmailService::sendProductActivationMail execution started.");
+
+        logger.debug("EmailService::sendProductActivationMail composing email to send");
+        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
+        String body = messageSource.getMessage("api.email.productActivationMail",null, Locale.ENGLISH);
+        body = body.replace("[[name]]", user.getFirstName());
+        body = body.replace("[[details]]", product.toString());
+
+        sendEmail(user.getEmail(), body, subject);
+        logger.info("EmailService::sendProductActivationMail execution ended.");
+    }
+
+    // method to trigger a mail to notify that product has been deactivated
+    public void sendProductDeactivationMail(ProductResponseDTO product,User user) {
+        logger.info("EmailService::sendProductDeactivationMail execution started.");
+
+        logger.debug("EmailService::sendProductDeactivationMail composing email to send");
+        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
+        String body = messageSource.getMessage("api.email.productDeactivationMail",null, Locale.ENGLISH);
+        body = body.replace("[[name]]", user.getFirstName());
+        body = body.replace("[[details]]", product.toString());
+
+        sendEmail(user.getEmail(), body, subject);
+        logger.info("EmailService::sendProductDeactivationMail execution ended.");
+    }
+
+
 }
