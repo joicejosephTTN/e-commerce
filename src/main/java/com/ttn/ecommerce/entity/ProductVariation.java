@@ -1,7 +1,10 @@
 package com.ttn.ecommerce.entity;
 
 import com.ttn.ecommerce.utils.Auditable;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 
@@ -10,7 +13,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class ProductVariation extends Auditable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "variation_gen")
@@ -25,7 +28,9 @@ public class ProductVariation extends Auditable<String> {
 
     private float price;
 
-    private String metadata;
+    @Type( type = "json" )
+    @Column( columnDefinition = "json" )
+    private Object metadata;
 
     private String imageName;
 

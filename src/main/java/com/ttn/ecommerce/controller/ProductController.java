@@ -1,8 +1,10 @@
 package com.ttn.ecommerce.controller;
 
+import com.ttn.ecommerce.entity.Product;
 import com.ttn.ecommerce.model.ProductDTO;
 import com.ttn.ecommerce.model.ProductResponseDTO;
 import com.ttn.ecommerce.model.ProductUpdateDTO;
+import com.ttn.ecommerce.model.VariationDTO;
 import com.ttn.ecommerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,10 +22,19 @@ public class ProductController{
     @Autowired
     ProductService productService;
 
-    @PreAuthorize("hasAuthority('SELLER')")
+//    @PreAuthorize("hasAuthority('SELLER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping(path ="/")
     public ResponseEntity<String> addProduct(Authentication authentication,@RequestBody ProductDTO productDTO){
         String response = productService.addProduct(authentication, productDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('SELLER')")
+    @PostMapping(path ="/variation")
+    public ResponseEntity<String> addProductVariation( @RequestBody VariationDTO variationDTO){
+        String response = productService.addVariation(variationDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -85,6 +96,33 @@ public class ProductController{
         String response = productService.deactivateProduct(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    /**
+     CUSTOMER related APIs
+     **/
+
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<ProductResponseDTO> viewCustomerProduct(@PathVariable Long id){
+        ProductResponseDTO response = productService.customerViewProduct(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/customer")
+    public ResponseEntity<List<ProductResponseDTO>> viewAllCustomerProducts(@PathVariable Long categoryId){
+        List<ProductResponseDTO> response = productService.customerViewAllProducts(categoryId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/customer/similar/{id}")
+    public ResponseEntity<List<Product>> viewSimilarProducts(@PathVariable Long productId){
+        List<Product> response = productService.viewSimilarProducts(productId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
 
 
 }

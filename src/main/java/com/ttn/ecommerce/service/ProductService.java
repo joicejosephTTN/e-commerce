@@ -4,10 +4,8 @@ import com.ttn.ecommerce.exception.BadRequestException;
 import com.ttn.ecommerce.model.ProductDTO;
 import com.ttn.ecommerce.model.ProductResponseDTO;
 import com.ttn.ecommerce.model.ProductUpdateDTO;
-import com.ttn.ecommerce.repository.CategoryMetadataFieldValueRepository;
-import com.ttn.ecommerce.repository.CategoryRepository;
-import com.ttn.ecommerce.repository.ProductRepository;
-import com.ttn.ecommerce.repository.UserRepository;
+import com.ttn.ecommerce.model.VariationDTO;
+import com.ttn.ecommerce.repository.*;
 import com.ttn.ecommerce.utils.FilterProperties;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -37,6 +36,12 @@ public class ProductService {
 
     @Autowired
     CategoryMetadataFieldValueRepository metadataFieldValueRepository;
+
+    @Autowired
+    CategoryMetadataFieldRepository metadataFieldRepository;
+
+    @Autowired
+    ProductVariationRepository productVariationRepository;
 
     public String addProduct(Authentication authentication, ProductDTO productDTO){
 
@@ -85,46 +90,69 @@ public class ProductService {
         return messageSource.getMessage("api.response.addedSuccess",null,Locale.ENGLISH);
     }
 
-//    public String addVariation(VariationDTO addVariationDTO){
-//        // validate ProductId
-//        Optional<Product> product = productRepository.findById(addVariationDTO.getProductId());
-//        if(product.isEmpty()){
-//            throw new BadRequestException(messageSource.getMessage("api.error.invalidId",null,Locale.ENGLISH));
-//        }
-//        // check product status
-//        if (product.get().isActive() || product.get().isDeleted()){
-//            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,Locale.ENGLISH));
-//        }
-//
-//        Category associatedCategory = product.get().getCategory();
-//
-//        // check if provided field and their values
-//        // are among the existing metaField-values defined for the category
-//
-//        Map<String, Set<String>> requestMetadata = addVariationDTO.getMetadata();
-//        List<String> requestKeySet = requestMetadata.keySet().stream().collect(Collectors.toList());
-//
-//
-//        List<CategoryMetadataFieldValue> associatedMetadata = metadataFieldValueRepository.findByCategory(associatedCategory);
-//        List<String> associatedKeySet = new ArrayList<>();
-//
-//        for(CategoryMetadataFieldValue metadataFieldValue : associatedMetadata){
-//            CategoryMetadataField field = metadataFieldValue.getCategoryMetadataField();
-//            String fieldName = field.getName();
-//            associatedKeySet.add(fieldName);
-//        }
-//
-//        // check if metadataField are associated with the category
-//        if(!associatedKeySet.contains(requestKeySet)){
-//            requestKeySet.removeAll(associatedKeySet);
-//            String errorResponse = messageSource.getMessage("api.error.fieldNotAssociated",null,Locale.ENGLISH);
-//            errorResponse.replace("[[fields]]",requestKeySet.toString());
-//            throw new BadRequestException(errorResponse);
-//        }
-//
-//        // check if metadataValues are associated for given category, metadataField
-//
-//        }
+    public String addVariation(VariationDTO addVariationDTO){
+
+        // validate ProductId
+
+        Optional<Product> product = productRepository.findById(addVariationDTO.getProductId());
+        if(product.isEmpty()){
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidId",null,Locale.ENGLISH));
+        }
+
+        // check product status
+        if (product.get().isActive() || product.get().isDeleted()){
+            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,Locale.ENGLISH));
+        }
+
+        Category associatedCategory = product.get().getCategory();
+
+        // check if provided field and their values
+        // are among the existing metaField-values defined for the category
+
+        Map<String, Set<String>> requestMetadata = addVariationDTO.getMetadata();
+        List<String> requestKeySet = requestMetadata.keySet().stream().collect(Collectors.toList());
+
+        List<CategoryMetadataFieldValue> associatedMetadata = metadataFieldValueRepository.findByCategory(associatedCategory);
+        List<String> associatedKeySet = new ArrayList<>();
+
+        for(CategoryMetadataFieldValue metadataFieldValue : associatedMetadata){
+            CategoryMetadataField field = metadataFieldValue.getCategoryMetadataField();
+            String fieldName = field.getName();
+            associatedKeySet.add(fieldName);
+        }
+
+        // check if metadataField are associated with the category
+        if(Collections.indexOfSubList(associatedKeySet,requestKeySet)==-1){
+            requestKeySet.removeAll(associatedKeySet);
+            String errorResponse = messageSource.getMessage("api.error.fieldNotAssociated",null,Locale.ENGLISH);
+            errorResponse=errorResponse.replace("[[fields]]", requestKeySet.toString());
+            throw new BadRequestException(errorResponse);
+        }
+
+        // check if metadataValues are associated for given category, metadataField
+        for(String key: requestKeySet){
+            CategoryMetadataField categoryMetadataField = metadataFieldRepository.findByNameIgnoreCase(key);
+            CategoryMetadataFieldValue categoryMetadataFieldValue = metadataFieldValueRepository.findByCategoryAndCategoryMetadataField(associatedCategory,categoryMetadataField);
+            String associatedStringValues = categoryMetadataFieldValue.getValue();
+            String associatedField = categoryMetadataFieldValue.getCategoryMetadataField().getName();
+            Set<String> associatedValues =Set.of(associatedStringValues.split(","));
+            Set<String> requestValues = requestMetadata.get(key);
+
+            if(associatedValues.containsAll(requestValues)==false){
+                requestValues.removeAll(associatedValues);
+                String errorResponse = messageSource.getMessage("api.error.valueNotAssociated",null,Locale.ENGLISH);
+                errorResponse=errorResponse.replace("[[value]]",associatedField+"-"+requestValues);
+                throw new BadRequestException(errorResponse);
+            }
+        }
+        ProductVariation productVariation = new ProductVariation();
+        BeanUtils.copyProperties(addVariationDTO,productVariation);
+        productVariation.setProduct(product.get());
+        productVariationRepository.save(productVariation);
+
+        return messageSource.getMessage("api.response.addedSuccess",null,Locale.ENGLISH);
+
+    }
 
     public ProductResponseDTO viewProduct(Authentication authentication, Long id){
         Optional<Product> product = productRepository.findById(id);
@@ -321,7 +349,8 @@ public class ProductService {
 
     }
 
-    public ProductResponseDTO sellerViewProduct(Long productId){
+
+    public ProductResponseDTO customerViewProduct(Long productId){
         // check if ID is valid
         Optional<Product> product = productRepository.findById(productId);
         if (product == null || product.isEmpty()) {
@@ -346,7 +375,7 @@ public class ProductService {
         return productResponseDTO;
     }
 
-    public List<ProductResponseDTO> sellerViewAllProducts(Long categoryId){
+    public List<ProductResponseDTO> customerViewAllProducts(Long categoryId){
 
         // check if category ID is valid
         Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new BadRequestException(
