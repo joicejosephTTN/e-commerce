@@ -22,6 +22,10 @@ public class ProductController{
     @Autowired
     ProductService productService;
 
+    /**
+     SELLER related APIs
+     **/
+
 //    @PreAuthorize("hasAuthority('SELLER')")
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping(path ="/")

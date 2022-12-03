@@ -75,8 +75,8 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getAuthority()));
-
-        user.setInvalidAttemptCount(0); // reset counter on successful login
+        // reset counter on successful login
+        user.setInvalidAttemptCount(0);
         userRepository.save(user);
         logger.debug("CustomAuthenticationManager::authenticate credentials authenticated ");
         logger.info("CustomAuthenticationManager::authenticate execution ended.");
