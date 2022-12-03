@@ -17,7 +17,6 @@ public class Product extends Auditable<String> {
     @SequenceGenerator(name="product_gen", sequenceName = "product_seq", initialValue = 1, allocationSize = 1)
     private long id;
 
-
     @ManyToOne
     @JoinColumn(name = "seller_id")
     private Seller seller;
@@ -33,8 +32,11 @@ public class Product extends Auditable<String> {
     private String brand;
 
     private boolean isActive;
+
     private boolean isDeleted;
+
     private boolean isCancellable;
+
     private boolean isReturnable;
 
 }

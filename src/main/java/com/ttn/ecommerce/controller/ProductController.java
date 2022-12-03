@@ -1,10 +1,8 @@
 package com.ttn.ecommerce.controller;
 
+import com.ttn.ecommerce.entity.Customer;
 import com.ttn.ecommerce.entity.Product;
-import com.ttn.ecommerce.model.ProductDTO;
-import com.ttn.ecommerce.model.ProductResponseDTO;
-import com.ttn.ecommerce.model.ProductUpdateDTO;
-import com.ttn.ecommerce.model.VariationDTO;
+import com.ttn.ecommerce.model.*;
 import com.ttn.ecommerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,14 +32,6 @@ public class ProductController{
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-//    @PreAuthorize("hasAuthority('SELLER')")
-    @PostMapping(path ="/variation")
-    public ResponseEntity<String> addProductVariation( @RequestBody VariationDTO variationDTO){
-        String response = productService.addVariation(variationDTO);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
     @PreAuthorize("hasAuthority('SELLER')")
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> fetchProduct(@PathVariable Long id, Authentication authentication){
@@ -56,19 +46,52 @@ public class ProductController{
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('SELLER')")
-    @DeleteMapping("/")
-    public ResponseEntity<String> removeProduct( Authentication authentication,Long id){
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> removeProduct( @PathVariable Long id, Authentication authentication ){
         String response = productService.deleteProduct(authentication,id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('SELLER')")
-    @PatchMapping("/")
-    public ResponseEntity<String> changeProduct(Authentication authentication, Long id, ProductUpdateDTO productUpdateDTO){
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> changeProduct(Authentication authentication, @PathVariable Long id, @RequestBody ProductUpdateDTO productUpdateDTO){
         String response = productService.updateProduct(id,authentication,productUpdateDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('SELLER')")
+    @PostMapping(path ="/variation")
+    public ResponseEntity<String> addProductVariation( @RequestBody VariationDTO variationDTO){
+        String response = productService.addVariation(variationDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    //    @PreAuthorize("hasAuthority('SELLER')")
+    @GetMapping(path ="/variation/{id}")
+    public ResponseEntity<List<VariationResponseDTO>> fetchProductVariation(@PathVariable Long id,Authentication authentication){
+        List<VariationResponseDTO> response = productService.viewProductVariation(id, authentication);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    //    @PreAuthorize("hasAuthority('SELLER')")
+    @GetMapping(path ="/particularVariation/{id}")
+    public ResponseEntity<VariationResponseDTO> fetchVariation(@PathVariable Long id,Authentication authentication){
+        VariationResponseDTO response = productService.viewVariation(id, authentication);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    //    @PreAuthorize("hasAuthority('SELLER')")
+    @PatchMapping("/variation/{id}")
+    public ResponseEntity<String> changeVariation(Authentication authentication, @PathVariable Long id, @RequestBody VariationUpdateDTO variationUpdateDTO){
+        String response = productService.updateProductVariation(id,authentication,variationUpdateDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
     /**
      ADMIN related APIs
@@ -88,14 +111,14 @@ public class ProductController{
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/activate/{id}")
+    @PutMapping("/activate/{id}")
     public ResponseEntity<String> activateProduct(@PathVariable Long id){
         String response = productService.activateProduct(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/deactivate/{id}")
+    @PutMapping("/deactivate/{id}")
     public ResponseEntity<String> deactivateProduct(@PathVariable Long id){
         String response = productService.deactivateProduct(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -107,15 +130,15 @@ public class ProductController{
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
     @GetMapping("/customer/{id}")
-    public ResponseEntity<ProductResponseDTO> viewCustomerProduct(@PathVariable Long id){
-        ProductResponseDTO response = productService.customerViewProduct(id);
+    public ResponseEntity<CustomerProductResponseDTO > viewCustomerProduct(@PathVariable Long id){
+        CustomerProductResponseDTO response = productService.customerViewProduct(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/customer")
-    public ResponseEntity<List<ProductResponseDTO>> viewAllCustomerProducts(@PathVariable Long categoryId){
-        List<ProductResponseDTO> response = productService.customerViewAllProducts(categoryId);
+    @GetMapping("/customer/all/{id}")
+    public ResponseEntity<List<CustomerProductResponseDTO>> viewAllCustomerProducts(@PathVariable Long categoryId){
+        List<CustomerProductResponseDTO> response = productService.customerViewAllProducts(categoryId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

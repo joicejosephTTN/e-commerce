@@ -15,7 +15,6 @@ public class SellerDTO extends UserDTO{
             message = "Enter a valid GST number")
     private String gst;
 
-
     @NotNull(message = "Phone number is mandatory field.")
     @Size(min=10,max=10,message = "Enter a valid phone number.")
     private String companyContact;

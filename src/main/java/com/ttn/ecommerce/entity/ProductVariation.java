@@ -3,6 +3,8 @@ package com.ttn.ecommerce.entity;
 import com.ttn.ecommerce.utils.Auditable;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -21,6 +23,7 @@ public class ProductVariation extends Auditable<String> {
     private long id;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "product_id")
     private Product product;
 
