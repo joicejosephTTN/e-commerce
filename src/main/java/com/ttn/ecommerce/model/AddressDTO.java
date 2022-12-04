@@ -25,8 +25,7 @@ public class AddressDTO {
     private String country;
 
     @NotEmpty(message = "This is a mandatory field.")
-    @Pattern(regexp="(^[A-Za-z0-9/., -]*$)",message = "Can only contain alphabets, numbers and '/'.")
-    @Size(min = 2,max = 30)
+    @Size(min = 2,max = 50,message = "AddressLine should be between 2-50 characters")
     private String addressLine;
 
     @NotEmpty(message = "This is a mandatory field.")

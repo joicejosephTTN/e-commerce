@@ -1,9 +1,6 @@
 package com.ttn.ecommerce.service;
 
-import com.ttn.ecommerce.exception.AccountInActiveException;
-import com.ttn.ecommerce.exception.InvalidTokenException;
-import com.ttn.ecommerce.exception.LinkExpiredException;
-import com.ttn.ecommerce.exception.PasswordDoNotMatchException;
+import com.ttn.ecommerce.exception.*;
 import com.ttn.ecommerce.entity.NotificationToken;
 import com.ttn.ecommerce.entity.User;
 import com.ttn.ecommerce.repository.NotificationTokenRepository;
@@ -55,7 +52,7 @@ public class NotificationTokenService {
                 notificationTokenRepository.delete(activationToken);
                 emailService.sendActivationMail(user);
                 logger.error("Exception occurred while activating account");
-                throw new LinkExpiredException(messageSource.getMessage("api.error.activationLinkExpired",null, Locale.ENGLISH));
+                throw new UnauthorizedException(messageSource.getMessage("api.error.activationLinkExpired",null, Locale.ENGLISH));
             }
             else{
                 // activate account, delete token & trigger a new mail notifying that account is active
@@ -72,7 +69,7 @@ public class NotificationTokenService {
     }
         else {
             logger.error("Exception occurred while activating account");
-            throw new InvalidTokenException(messageSource.getMessage("api.error.invalidToken",null, Locale.ENGLISH));
+            throw new UnauthorizedException(messageSource.getMessage("api.error.invalidToken",null, Locale.ENGLISH));
         }
     }
 
@@ -86,7 +83,7 @@ public class NotificationTokenService {
         User user = userRepository.findUserByEmail(email);
         if(user==null){
             logger.error("Exception occurred while resending the mail");
-            throw new BadCredentialsException(messageSource.getMessage("api.error.invalidEmail",null, Locale.ENGLISH));
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidEmail",null, Locale.ENGLISH));
         } else{
             // check if account is already active
             if(user.isActive()){
@@ -121,13 +118,14 @@ public class NotificationTokenService {
         User user = userRepository.findUserByEmail(email);
         if(user==null){
             logger.error("Exception occurred while sending the mail");
-            throw new BadCredentialsException(messageSource.getMessage("api.error.invalidEmail",null, Locale.ENGLISH));
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidEmail",null, Locale.ENGLISH));
         } else{
             // check if account is active
             if(user.isActive()){
                 NotificationToken token = notificationTokenRepository.findByUser(user);
                 // delete if reset password token already exists & trigger reset password mail
                 if(token!=null){
+                    logger.debug("NotificationTokenService::forgotPassword deleting token");
                     notificationTokenRepository.delete(token);
                     emailService.sendForgotPasswordMail(user);
                 }
@@ -139,7 +137,7 @@ public class NotificationTokenService {
             // in case account is inactive
             else{
                 logger.error("Exception occurred while sending the mail");
-                throw new AccountInActiveException(messageSource.getMessage("api.error.accountInactive",null, Locale.ENGLISH));
+                throw new BadRequestException(messageSource.getMessage("api.error.accountInactive",null, Locale.ENGLISH));
 
             }
         }
@@ -161,19 +159,21 @@ public class NotificationTokenService {
             // Expires after 15 min
             if(passwordToken.getCreationTime().isBefore(LocalDateTime.now().minusMinutes(15l))){
                 // delete the token
+                logger.debug("NotificationTokenService::resetPassword deleting token");
                 notificationTokenRepository.delete(passwordToken);
                 logger.error("Exception occurred while changing the password");
-                throw new LinkExpiredException(messageSource.getMessage("api.error.linkExpired",null, Locale.ENGLISH)) ;
+                throw new UnauthorizedException(messageSource.getMessage("api.error.linkExpired",null, Locale.ENGLISH)) ;
             }
             else{
                 // check if passwords match
                 if(!(password.equals(confirmPassword))){
                     logger.error("Exception occurred while changing the password");
-                    throw new PasswordDoNotMatchException(messageSource.getMessage("api.error.passwordDoNotMatch",null, Locale.ENGLISH));
+                    throw new BadRequestException(messageSource.getMessage("api.error.passwordDoNotMatch",null, Locale.ENGLISH));
                 }
                 // change password
                 user.setPassword(passwordEncoder.encode(password));
                 userRepository.save(user);
+                logger.debug("NotificationTokenService::resetPassword deleting token");
                 notificationTokenRepository.delete(passwordToken);
                 emailService.sendSuccessfulChangeMail(user);
                 logger.info("NotificationTokenService::resetPassword execution ended.");
@@ -182,7 +182,7 @@ public class NotificationTokenService {
         }
         else {
             logger.error("Exception occurred while changing the password");
-            throw new InvalidTokenException(messageSource.getMessage("api.error.invalidToken",null, Locale.ENGLISH));
+            throw new UnauthorizedException(messageSource.getMessage("api.error.invalidToken",null, Locale.ENGLISH));
         }
     }
 }

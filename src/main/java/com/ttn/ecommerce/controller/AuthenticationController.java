@@ -23,12 +23,6 @@ public class AuthenticationController {
     @Autowired
     AuthenticationService authenticationService;
 
-    @PostMapping(path = "/login")
-    public ResponseEntity<String> userLogin(@RequestBody LoginDTO loginDTO){
-        authenticationService.userSignIn(loginDTO.getEmail(), loginDTO.getPassword());
-        return new ResponseEntity<>("User signed-in successfully.", HttpStatus.OK);
-    }
-
     @PostMapping(path="/logout")
     public ResponseEntity<String> userLogout(HttpServletRequest request){
         logger.info("AuthenticationController::userLogout request body: " + request.toString() );

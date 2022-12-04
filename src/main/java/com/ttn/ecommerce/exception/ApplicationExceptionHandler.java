@@ -1,21 +1,33 @@
 package com.ttn.ecommerce.exception;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.common.exceptions.UnauthorizedUserException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
 import javax.security.auth.login.AccountLockedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @RestControllerAdvice
 public class ApplicationExceptionHandler {
+
+    @Autowired
+    MessageSource messageSource;
 
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<CustomErrorFormat> handleAllException(Exception ex, WebRequest request) throws Exception{
@@ -43,11 +55,47 @@ public class ApplicationExceptionHandler {
         return new ResponseEntity<>(errorFormat, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<CustomErrorFormat> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex, WebRequest request) throws MissingServletRequestParameterException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorFormat, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CustomErrorFormat> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex, WebRequest request) throws MethodArgumentTypeMismatchException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), messageSource.getMessage("api.error.pageNotFound",null, Locale.ENGLISH), request.getDescription(false), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorFormat, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<CustomErrorFormat> handlePropertyReferenceException(PropertyReferenceException ex, WebRequest request) throws PropertyReferenceException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), messageSource.getMessage("api.error.pageNotFound",null, Locale.ENGLISH), request.getDescription(false), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorFormat, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<CustomErrorFormat> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) throws UnauthorizedException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(errorFormat, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<CustomErrorFormat> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) throws AccessDeniedException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(errorFormat, HttpStatus.FORBIDDEN);
+    }
+
 
     @ExceptionHandler(PasswordDoNotMatchException.class)
     public ResponseEntity<CustomErrorFormat> handlePasswordDoNotMatch(PasswordDoNotMatchException ex, WebRequest request) throws  PasswordDoNotMatchException{
         CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(errorFormat, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<CustomErrorFormat> handleNotFoundException(NotFoundException ex, WebRequest request) throws  NotFoundException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorFormat, HttpStatus.NOT_FOUND);
     }
 
 

@@ -59,7 +59,7 @@ public class EmailService {
         String link = messageSource.getMessage("api.email.siteUrl",null, Locale.ENGLISH);
 
         body = body.replace("[[name]]", user.getFirstName());
-        body = body.replace("[[URL]]",link +"/activate_account?token="+ activationToken.getToken());
+        body = body.replace("[[URL]]",link +"/activateAccount?token="+ activationToken.getToken());
 
         sendEmail(user.getEmail(), body, subject);
         logger.info("EmailService::sendActivationMail execution ended.");
@@ -94,7 +94,7 @@ public class EmailService {
         String link = messageSource.getMessage("api.email.siteUrl",null, Locale.ENGLISH);
 
         body = body.replace("[[name]]", user.getFirstName());
-        body = body.replace("[[URL]]",link +"/reset_password?token="+ passwordToken.getToken());
+        body = body.replace("[[URL]]",link +"/resetPassword?token="+ passwordToken.getToken());
 
         sendEmail(user.getEmail(), body, subject);
         logger.info("EmailService::sendForgotPasswordMail execution ended.");

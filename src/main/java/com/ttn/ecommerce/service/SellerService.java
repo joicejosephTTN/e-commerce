@@ -3,6 +3,7 @@ package com.ttn.ecommerce.service;
 import com.ttn.ecommerce.entity.Address;
 import com.ttn.ecommerce.entity.Seller;
 import com.ttn.ecommerce.entity.User;
+import com.ttn.ecommerce.exception.BadRequestException;
 import com.ttn.ecommerce.exception.InvalidFileFormatException;
 import com.ttn.ecommerce.exception.PasswordDoNotMatchException;
 import com.ttn.ecommerce.model.AddressDTO;
@@ -93,20 +94,22 @@ public class SellerService {
         Address address = seller.getAddress();
         logger.debug("SellerService::updateProfile fetching details from request");
 
-        // extract addressDTO object from the incoming request
-        AddressUpdateDTO addressDTO = sellerUpdateDTO.getAddress();
-        logger.debug("SellerService::updateProfile updating details");
+        if(sellerUpdateDTO!=null) {
+            // extract addressDTO object from the incoming request
+            AddressUpdateDTO addressDTO = sellerUpdateDTO.getAddress();
+            logger.debug("SellerService::updateProfile updating details");
 
-        //partial update of address - ignoring null properties received in request
-        BeanUtils.copyProperties(addressDTO, address, FilterProperties.getNullPropertyNames(addressDTO));
+            //partial update of address - ignoring null properties received in request
+            BeanUtils.copyProperties(addressDTO, address, FilterProperties.getNullPropertyNames(addressDTO));
 
-        // saving updates
-        address.setSeller(seller);
-        addressRepository.save(address);
+            // saving updates
+            address.setSeller(seller);
+            addressRepository.save(address);
 
-        // partial updates
-        BeanUtils.copyProperties(sellerUpdateDTO, user, FilterProperties.getNullPropertyNames(sellerUpdateDTO));
-        BeanUtils.copyProperties(sellerUpdateDTO, seller, FilterProperties.getNullPropertyNames(sellerUpdateDTO));
+            // partial updates
+            BeanUtils.copyProperties(sellerUpdateDTO, user, FilterProperties.getNullPropertyNames(sellerUpdateDTO));
+            BeanUtils.copyProperties(sellerUpdateDTO, seller, FilterProperties.getNullPropertyNames(sellerUpdateDTO));
+        }
 
         // take the image, save it or replace if it exists
         if(!image.isEmpty()) {
@@ -127,7 +130,7 @@ public class SellerService {
                 }
             } else {
                 logger.error("SellerService::updateProfile An exception occurred while updating profile");
-                throw new InvalidFileFormatException(messageSource.getMessage("api.error.invalidFileType",null, Locale.ENGLISH));
+                throw new BadRequestException(messageSource.getMessage("api.error.invalidFileType",null, Locale.ENGLISH));
             }
         }
         // saving updates

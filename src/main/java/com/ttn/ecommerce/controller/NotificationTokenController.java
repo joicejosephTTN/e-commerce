@@ -21,7 +21,7 @@ public class NotificationTokenController {
     @Autowired
     NotificationTokenService notificationTokenService;
 
-    @PutMapping(path = "/activate_account")
+    @PutMapping(path = "/activateAccount")
     public ResponseEntity<String> activateAccount(@RequestParam("token") String token){
         logger.info("NotificationTokenController::activateAccount request body: " + token);
         String response = notificationTokenService.activateUserAccount(token);
@@ -29,25 +29,25 @@ public class NotificationTokenController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping(path="/resend_activation")
+    @PostMapping(path="/resendActivation")
     public ResponseEntity<String> resendActivation(@Valid @RequestBody EmailDTO emailDTO){
-        logger.info("NotificationTokenController::resendActivation request body: " + emailDTO.toString());
+        logger.info("NotificationTokenController::resendActivation request body: " + emailDTO);
         String response = notificationTokenService.resendActivationMail(emailDTO.getEmail());
         logger.info("NotificationTokenController::resendActivation response: " + response );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping(path="/forgot_password")
+    @PostMapping(path="/forgotPassword")
     public ResponseEntity<String> forgotPassword(@Valid @RequestBody EmailDTO emailDTO){
-        logger.info("NotificationTokenController::forgotPassword request body: " + emailDTO.toString());
+        logger.info("NotificationTokenController::forgotPassword request body: " + emailDTO);
         String response = notificationTokenService.forgotPassword(emailDTO.getEmail());
         logger.info("NotificationTokenController::forgotPassword response: " + response );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PatchMapping(path="/reset_password")
+    @PatchMapping(path="/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestParam("token") String token, @Valid @RequestBody PasswordDTO passwordDTO){
-        logger.info("NotificationTokenController::resetPassword request body: " + token+ "," + passwordDTO.toString());
+        logger.info("NotificationTokenController::resetPassword request body: " + token+ "," + passwordDTO);
         String response = notificationTokenService.resetPassword(token, passwordDTO.getPassword(), passwordDTO.getConfirmPassword());
         logger.info("NotificationTokenController::resetPassword response: " + response );
         return new ResponseEntity<>(response, HttpStatus.OK);

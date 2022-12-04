@@ -3,6 +3,8 @@ package com.ttn.ecommerce.service;
 import com.ttn.ecommerce.entity.Customer;
 import com.ttn.ecommerce.entity.Seller;
 import com.ttn.ecommerce.entity.User;
+import com.ttn.ecommerce.exception.BadRequestException;
+import com.ttn.ecommerce.exception.NotFoundException;
 import com.ttn.ecommerce.exception.UserNotFoundException;
 import com.ttn.ecommerce.model.CustomerResponseDTO;
 import com.ttn.ecommerce.model.SellerResponseDTO;
@@ -47,12 +49,34 @@ public class AdminService {
     EmailService emailService;
 
 
-    public List<CustomerResponseDTO> listAllCustomers(Integer pageNo, Integer pageSize, String sortBy){
+    public List<CustomerResponseDTO> listAllCustomers(Integer pageNo, Integer pageSize, String sortBy,String filter){
         logger.info("AdminService::listAllCustomers execution started.");
 
         logger.debug("AdminService::listAllCustomers fetching list of customers");
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         Page<Customer> pagedResultCustomer = customerRepository.findAll(paging);
+        if( filter!=null) {
+            User user = userRepository.findUserByEmail(filter);
+            if (user == null) {
+                throw new NotFoundException(messageSource.getMessage("api.error.userNotFound", null, Locale.ENGLISH));
+            } else {
+                Customer customer = user.getCustomer();
+                if(customer==null){
+                    throw new NotFoundException(messageSource.getMessage("api.error.customerNotFound",null,Locale.ENGLISH));
+                }
+                List<CustomerResponseDTO> requiredCustomers = new ArrayList<>();
+                CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO();
+                customerResponseDTO.setUserId(user.getId());
+                customerResponseDTO.setEmail(user.getEmail());
+                String fullName = user.getFirstName()+" "+user.getMiddleName()+ " "+user.getLastName();
+                customerResponseDTO.setFullName(fullName);
+                customerResponseDTO.setActive(user.isActive());
+                requiredCustomers.add(customerResponseDTO);
+                logger.debug("AdminService::listAllSellers returning list of SellerResponseDTO");
+                logger.info("AdminService::listAllSellers execution ended.");
+                return requiredCustomers;
+            }
+        }
         List<CustomerResponseDTO> requiredCustomers = new ArrayList<>();
 
 
@@ -75,13 +99,42 @@ public class AdminService {
     }
 
 
-    public List<SellerResponseDTO> listAllSellers(Integer pageNo, Integer pageSize, String sortBy){
+    public List<SellerResponseDTO> listAllSellers(Integer pageNo, Integer pageSize, String sortBy, String filter){
         logger.info("AdminService::listAllSellers execution started.");
-
         logger.debug("AdminService::listAllSellers fetching list of sellers");
+
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         Page<Seller> pagedResultSeller = sellerRepository.findAll(paging);
-        List<SellerResponseDTO> requiredCustomers = new ArrayList<>();
+
+        if( filter!=null){
+            User user = userRepository.findUserByEmail(filter);
+            if(user==null){
+                throw new NotFoundException(messageSource.getMessage("api.error.userNotFound",null,Locale.ENGLISH));
+            }
+            else {
+                Seller seller = user.getSeller();
+                if(seller==null){
+                    throw new NotFoundException(messageSource.getMessage("api.error.sellerNotFound",null,Locale.ENGLISH));
+                }
+                List<SellerResponseDTO> requiredSellers = new ArrayList<>();
+                SellerResponseDTO sellerResponseDTO = new SellerResponseDTO();
+                sellerResponseDTO.setUserId(user.getId());
+                sellerResponseDTO.setEmail(user.getEmail());
+                String fullName = user.getFirstName()+" "+user.getMiddleName()+ " "+user.getLastName();
+                sellerResponseDTO.setFullName(fullName);
+                sellerResponseDTO.setActive(user.isActive());
+                sellerResponseDTO.setCompanyName(seller.getCompanyName());
+                sellerResponseDTO.setGst(seller.getGst());
+                sellerResponseDTO.setCompanyContact(seller.getCompanyContact());
+                sellerResponseDTO.setAddress(seller.getAddress());
+                requiredSellers.add(sellerResponseDTO);
+                logger.debug("AdminService::listAllSellers returning list of SellerResponseDTO");
+                logger.info("AdminService::listAllSellers execution ended.");
+                return requiredSellers;
+            }
+        }
+
+        List<SellerResponseDTO> requiredSellers = new ArrayList<>();
 
         logger.debug("AdminService::listAllSellers converting sellers to SellerResponseDTO");
         for (Seller seller : pagedResultSeller) {
@@ -96,13 +149,13 @@ public class AdminService {
             sellerResponseDTO.setGst(seller.getGst());
             sellerResponseDTO.setCompanyContact(seller.getCompanyContact());
             sellerResponseDTO.setAddress(seller.getAddress());
-            requiredCustomers.add(sellerResponseDTO);
+            requiredSellers.add(sellerResponseDTO);
         }
 
         logger.debug("AdminService::listAllSellers returning list of SellerResponseDTO");
 
         logger.info("AdminService::listAllSellers execution ended.");
-        return requiredCustomers;
+        return requiredSellers;
     }
 
 
@@ -126,7 +179,7 @@ public class AdminService {
         }
         else{
             logger.error("AdminService::activateUser exception occurred while activating account");
-            throw new UserNotFoundException(messageSource.getMessage("api.error.userNotFound",null, Locale.ENGLISH));
+            throw new NotFoundException(messageSource.getMessage("api.error.userNotFound",null, Locale.ENGLISH));
         }
 
     }
@@ -151,7 +204,7 @@ public class AdminService {
         }
         else{
             logger.error("AdminService::deactivateUser exception occurred while deactivating account");
-            throw new UserNotFoundException(messageSource.getMessage("api.error.userNotFound",null, Locale.ENGLISH));
+            throw new NotFoundException(messageSource.getMessage("api.error.userNotFound",null, Locale.ENGLISH));
         }
 
     }

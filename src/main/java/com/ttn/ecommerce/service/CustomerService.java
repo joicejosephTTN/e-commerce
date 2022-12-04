@@ -3,9 +3,7 @@ package com.ttn.ecommerce.service;
 import com.ttn.ecommerce.entity.Address;
 import com.ttn.ecommerce.entity.Customer;
 import com.ttn.ecommerce.entity.User;
-import com.ttn.ecommerce.exception.AddressNotFoundException;
-import com.ttn.ecommerce.exception.InvalidFileFormatException;
-import com.ttn.ecommerce.exception.PasswordDoNotMatchException;
+import com.ttn.ecommerce.exception.*;
 import com.ttn.ecommerce.model.AddressDTO;
 import com.ttn.ecommerce.model.AddressUpdateDTO;
 import com.ttn.ecommerce.model.CustomerUpdateDTO;
@@ -19,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -91,10 +91,11 @@ public class CustomerService {
         User user = userRepository.findUserByEmail(email);
         Customer customer = user.getCustomer();
 
-        // partial updates
-        BeanUtils.copyProperties(customerUpdateDTO, user, FilterProperties.getNullPropertyNames(customerUpdateDTO));
-        BeanUtils.copyProperties(customerUpdateDTO, customer, FilterProperties.getNullPropertyNames(customerUpdateDTO));
-
+        if(customerUpdateDTO!=null) {
+            // partial updates
+            BeanUtils.copyProperties(customerUpdateDTO, user, FilterProperties.getNullPropertyNames(customerUpdateDTO));
+            BeanUtils.copyProperties(customerUpdateDTO, customer, FilterProperties.getNullPropertyNames(customerUpdateDTO));
+        }
         // take the image, save it or replace if it exists
         if(!image.isEmpty()) {
             if ((image.getContentType().equals("image/jpg")
@@ -186,9 +187,9 @@ public class CustomerService {
         Customer loggedCustomer = user.getCustomer();
         // getting requested address
         Optional<Address> address = addressRepository.findById(addressId);
-        Address reqdAddress = address.get();
 
         if(address.isPresent()){
+            Address reqdAddress = address.get();
             // check to see if address is associated with logged in customer
             if (reqdAddress.getCustomer() == loggedCustomer){
                 logger.debug("CustomerService::deleteAddress deleting the address");
@@ -197,29 +198,36 @@ public class CustomerService {
                 return messageSource.getMessage("api.response.addressDelete",null, Locale.ENGLISH);
             }
             logger.error("CustomerService::deleteAddress exception occurred while deleting");
-            throw new AddressNotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidId",null, Locale.ENGLISH));
 
         }
         logger.error("CustomerService::deleteAddress exception occurred while deleting");
-        throw new AddressNotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
+        throw new NotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
     }
 
     public String updateAddress(String email, Long addressId, AddressUpdateDTO addressDTO){
         logger.info("CustomerService::updateAddress execution started.");
         logger.debug("CustomerService::updateAddress fetching the associated address");
+        // if empty addressDTO is being sent in request
+        AddressUpdateDTO emptyAddressDTO = new AddressUpdateDTO();
+        if(addressDTO.equals(emptyAddressDTO)){
+            return messageSource.getMessage("api.response.noUpdate",null, Locale.ENGLISH);
+        }
         // getting associated user, customer
         User user = userRepository.findUserByEmail(email);
         Customer loggedCustomer = user.getCustomer();
 
         // getting requested address
         Optional<Address> address = addressRepository.findById(addressId);
-        Address reqdAddress = address.get();
+
 
         logger.debug("CustomerService::updateAddress making updating details of address");
 
         if(address.isPresent()){
+            Address reqdAddress = address.get();
             // check to see if address is associated with logged in customer
             if (reqdAddress.getCustomer() == loggedCustomer){
+
                 //partial update of address - ignoring null properties received in request
                 BeanUtils.copyProperties(addressDTO, reqdAddress, FilterProperties.getNullPropertyNames(addressDTO));
 
@@ -233,9 +241,9 @@ public class CustomerService {
                 return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
             }
             logger.error("CustomerService::updateAddress exception occurred while updating the address");
-            throw new AddressNotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
+            throw new NotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
         }
         logger.error("CustomerService::updateAddress exception occurred while updating the address");
-        throw new AddressNotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
+        throw new NotFoundException(messageSource.getMessage("api.error.addressNotFound",null, Locale.ENGLISH));
     }
 }

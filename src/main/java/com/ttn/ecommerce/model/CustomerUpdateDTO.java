@@ -19,6 +19,7 @@ public class CustomerUpdateDTO {
             "Name can only contain alphabets. Must contain 2-30 characters.")
     private String lastName;
 
-    @Size(min=10,max=10,message = "Enter a valid phone number.")
+    @Pattern(regexp="(^[0-9]*$)",message = "Can only contain numbers.")
+    @Size(min=10,max=10,message = "Enter a valid 10 digit phone number.")
     private String contact;
 }

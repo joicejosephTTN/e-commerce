@@ -25,12 +25,6 @@ public class RegistrationController {
     @Autowired
     RegistrationService registrationService;
 
-    //Test purpose
-    @GetMapping(path="/users")
-    public List<User> getAllUsers(){
-        return registrationService.returnAllUsers();
-
-    }
 
     @PostMapping(path = "/registration", headers = "user-role=SELLER")
     public ResponseEntity<String> registerUser(@Valid @RequestBody SellerDTO sellerDTO){
