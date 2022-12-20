@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class ProductUpdateDTO {
-
     private String name;
     private Boolean isCancellable;
     private Boolean isReturnable;

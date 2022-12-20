@@ -18,7 +18,7 @@ import javax.persistence.*;
 @TypeDef(name = "json", typeClass = JsonStringType.class)
 public class ProductVariation extends Auditable<String> {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "variation_gen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "variation_gen")
     @SequenceGenerator(name="product_gen", sequenceName = "product_seq", initialValue = 1, allocationSize = 1)
     private long id;
 

@@ -157,7 +157,7 @@ public class NotificationTokenService {
             User user = userRepository.findUserByEmail(passwordToken.getUser().getEmail());
             // check to see whether token has expired
             // Expires after 15 min
-            if(passwordToken.getCreationTime().isBefore(LocalDateTime.now().minusMinutes(15l))){
+            if(passwordToken.getCreationTime().isBefore(LocalDateTime.now().minusMinutes(1l))){
                 // delete the token
                 logger.debug("NotificationTokenService::resetPassword deleting token");
                 notificationTokenRepository.delete(passwordToken);

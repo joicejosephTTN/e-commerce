@@ -1,0 +1,157 @@
+{
+	"info": {
+		"_postman_id": "2485f958-1313-4a77-9775-28cd90c4159d",
+		"name": "Authentication",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23825933"
+	},
+	"item": [
+		{
+			"name": "User Login [SELLER]",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "ecommerce-app",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "supersecret",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "Password@1234",
+							"type": "text"
+						},
+						{
+							"key": "scopes",
+							"value": "app",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/oauth/token",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "944e84d7-9c63-4ddf-84d6-77484b3e72af",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/logout",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Login [CUSTOMER]",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "ecommerce-app",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "supersecret",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "customeremail1@cosaxu.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "Password@1234",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "scopes",
+							"value": "app",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/oauth/token",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

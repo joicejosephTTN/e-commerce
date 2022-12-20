@@ -1,0 +1,81 @@
+{
+	"info": {
+		"_postman_id": "1fd52280-fbff-4e24-9557-31b9fe663aab",
+		"name": "Registration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23825933"
+	},
+	"item": [
+		{
+			"name": "Create Seller",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "user-role",
+						"value": "SELLER",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"email\": \"tarun1@gmail.com\",\n        \"firstName\": \"tarun\",\n        \"middleName\": \"K\",\n        \"lastName\": \"singh\",\n        \"password\": \"Password@1234\",\n        \"reEnterPassword\": \"Password@1234\",\n            \"gst\": \"18AABCU9603R1ZM\",\n            \"companyContact\": 9999999787,\n            \"companyName\": \"TTN\",\n            \"address\":{\n                \"city\": \"Noida\",\n                \"state\": \"UP\",\n                \"country\": \"India\",\n                \"addressLine\": \"199/3\",\n                \"zipCode\": 121032,\n                \"label\": \"Office\"\n            }\n        }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/registration",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"registration"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Customer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "user-role",
+						"value": "CUSTOMER",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"email\": \"dipap96791@sunetoa.com\",\n        \"firstName\": \"Tarun\",\n        \"middleName\": \"K\",\n        \"lastName\": \"Singh\",\n        \"password\": \"1234@Pass\",\n        \"reEnterPassword\": \"1234@Pass\",\n            \"contact\": 1234567890,\n            \"address\": [\n                {\n                    \"city\": \"Noida\",\n                    \"state\": \"UP\",\n                    \"country\": \"India\",\n                    \"addressLine\": \"7987\",\n                    \"zipCode\": \"121031\",\n                    \"label\": \"Office\"\n                },\n                {\n                    \"city\": \"Delhi\",\n                    \"state\": \"UP\",\n                    \"country\": \"India\",\n                    \"addressLine\": \"9997\",\n                    \"zipCode\": \"121032\",\n                    \"label\": \"Home\"\n                }\n            ]\n        }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/registration",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"registration"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

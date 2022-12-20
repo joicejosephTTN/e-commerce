@@ -169,7 +169,7 @@ public class EmailService {
         body = body.replace("[[details]]", product.toString());
 
         sendEmail("tarunsingh021@gmail.com", body, subject);
-        logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
+        logger.info("EmailService::sendNewProductMail execution ended.");
     }
 
     // method to trigger a mail to notify that product has been activated

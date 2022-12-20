@@ -51,8 +51,8 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         clients.inMemory()
                 .withClient("ecommerce-app")
                 .secret(passwordEncoder.encode("supersecret"))
-                .accessTokenValiditySeconds(7 * 24 * 60)                // expire time for access token
-                .refreshTokenValiditySeconds(30 * 24 * 3600)            // expire time for refresh token
+                .accessTokenValiditySeconds(1 * 24 * 3600)                // expire time for access token
+                .refreshTokenValiditySeconds(7 * 24 * 3600)            // expire time for refresh token
                 .scopes("app")                                          // scope related to resource server
                 .authorizedGrantTypes("password", "refresh_token")      // grant type
                 .resourceIds("e-commerce app");

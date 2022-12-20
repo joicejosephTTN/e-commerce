@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -23,9 +24,7 @@ public class ProductController{
     /**
      SELLER related APIs
      **/
-
-//    @PreAuthorize("hasAuthority('SELLER')")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SELLER')")
     @PostMapping(path ="/")
     public ResponseEntity<String> addProduct(Authentication authentication,@RequestBody ProductDTO productDTO){
         String response = productService.addProduct(authentication, productDTO);
@@ -41,12 +40,12 @@ public class ProductController{
 
     @PreAuthorize("hasAuthority('SELLER')")
     @GetMapping("/")
-    public ResponseEntity<List<ProductResponseDTO>> fetchAllProducts( Authentication authentication){
+    public ResponseEntity<List<ProductResponseDTO>> fetchAllProducts(Authentication authentication){
         List<ProductResponseDTO> response = productService.viewAllProducts(authentication);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SELLER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> removeProduct( @PathVariable Long id, Authentication authentication ){
         String response = productService.deleteProduct(authentication,id);
@@ -60,32 +59,28 @@ public class ProductController{
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-//    @PreAuthorize("hasAuthority('SELLER')")
+    @PreAuthorize("hasAuthority('SELLER')")
     @PostMapping(path ="/variation")
-    public ResponseEntity<String> addProductVariation( @RequestBody VariationDTO variationDTO){
+    public ResponseEntity<String> addProductVariation( @Valid @RequestBody VariationDTO variationDTO){
         String response = productService.addVariation(variationDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    //    @PreAuthorize("hasAuthority('SELLER')")
+    @PreAuthorize("hasAuthority('SELLER')")
     @GetMapping(path ="/variation/{id}")
     public ResponseEntity<List<VariationResponseDTO>> fetchProductVariation(@PathVariable Long id,Authentication authentication){
         List<VariationResponseDTO> response = productService.viewProductVariation(id, authentication);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    //    @PreAuthorize("hasAuthority('SELLER')")
+    @PreAuthorize("hasAuthority('SELLER')")
     @GetMapping(path ="/particularVariation/{id}")
     public ResponseEntity<VariationResponseDTO> fetchVariation(@PathVariable Long id,Authentication authentication){
         VariationResponseDTO response = productService.viewVariation(id, authentication);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    //    @PreAuthorize("hasAuthority('SELLER')")
+    @PreAuthorize("hasAuthority('SELLER')")
     @PatchMapping("/variation/{id}")
     public ResponseEntity<String> changeVariation(Authentication authentication, @PathVariable Long id, @RequestBody VariationUpdateDTO variationUpdateDTO){
         String response = productService.updateProductVariation(id,authentication,variationUpdateDTO);
@@ -137,19 +132,17 @@ public class ProductController{
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
     @GetMapping("/customer/all/{id}")
-    public ResponseEntity<List<CustomerProductResponseDTO>> viewAllCustomerProducts(@PathVariable Long categoryId){
-        List<CustomerProductResponseDTO> response = productService.customerViewAllProducts(categoryId);
+    public ResponseEntity<List<CustomerProductResponseDTO>> viewAllCustomerProducts(@PathVariable Long id){
+        List<CustomerProductResponseDTO> response = productService.customerViewAllProducts(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
     @GetMapping("/customer/similar/{id}")
-    public ResponseEntity<List<Product>> viewSimilarProducts(@PathVariable Long productId){
-        List<Product> response = productService.viewSimilarProducts(productId);
+    public ResponseEntity<List<Product>> viewSimilarProducts(@PathVariable Long id){
+        List<Product> response = productService.viewSimilarProducts(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
 
 
 }

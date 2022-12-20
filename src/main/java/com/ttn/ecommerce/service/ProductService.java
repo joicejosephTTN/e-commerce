@@ -1,9 +1,12 @@
 package com.ttn.ecommerce.service;
 import com.ttn.ecommerce.entity.*;
 import com.ttn.ecommerce.exception.BadRequestException;
+import com.ttn.ecommerce.exception.NotFoundException;
 import com.ttn.ecommerce.model.*;
 import com.ttn.ecommerce.repository.*;
 import com.ttn.ecommerce.utils.FilterProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -15,6 +18,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
+
+    Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     @Autowired
     EmailService emailService;
@@ -42,6 +47,7 @@ public class ProductService {
 
     public String addProduct(Authentication authentication, ProductDTO productDTO) {
 
+        logger.info("ProductService::addProduct ");
         // fetch associated details
         String email = authentication.getName();
         User user = userRepository.findUserByEmail(email);
@@ -91,7 +97,7 @@ public class ProductService {
     public ProductResponseDTO viewProduct(Authentication authentication, Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (product.isEmpty()) {
-            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId", null, Locale.ENGLISH));
+            throw new NotFoundException(messageSource.getMessage("api.error.invalidProductId", null, Locale.ENGLISH));
         }
 
         User user = userRepository.findUserByEmail(authentication.getName());
@@ -163,6 +169,12 @@ public class ProductService {
 
     public String updateProduct(Long id, Authentication authentication, ProductUpdateDTO productUpdateDTO) {
 
+        // if empty addressDTO is being sent in request
+        ProductUpdateDTO emptyUpdateDTO = new ProductUpdateDTO();
+        if(productUpdateDTO.equals(emptyUpdateDTO)){
+            return messageSource.getMessage("api.response.noUpdate",null, Locale.ENGLISH);
+        }
+
         // fetch product
         Optional<Product> product = productRepository.findById(id);
 
@@ -205,7 +217,7 @@ public class ProductService {
         // check if provided field and their values
         // are among the existing metaField-values defined for the category
 
-        Map<String, Set<String>> requestMetadata = addVariationDTO.getMetadata();
+        Map<String, String> requestMetadata = addVariationDTO.getMetadata();
         List<String> requestKeySet = requestMetadata.keySet().stream().collect(Collectors.toList());
 
         List<CategoryMetadataFieldValue> associatedMetadata = metadataFieldValueRepository.findByCategory(associatedCategory);
@@ -218,7 +230,7 @@ public class ProductService {
         }
 
         // check if metadataField are associated with the category
-        if (Collections.indexOfSubList(associatedKeySet, requestKeySet) == -1) {
+        if (associatedKeySet.containsAll(requestKeySet) == false) {
             requestKeySet.removeAll(associatedKeySet);
             String errorResponse = messageSource.getMessage("api.error.fieldNotAssociated", null, Locale.ENGLISH);
             errorResponse = errorResponse.replace("[[fields]]", requestKeySet.toString());
@@ -232,10 +244,9 @@ public class ProductService {
             String associatedStringValues = categoryMetadataFieldValue.getValue();
             String associatedField = categoryMetadataFieldValue.getCategoryMetadataField().getName();
             Set<String> associatedValues = Set.of(associatedStringValues.split(","));
-            Set<String> requestValues = requestMetadata.get(key);
+            String requestValues = requestMetadata.get(key);
 
-            if (associatedValues.containsAll(requestValues) == false) {
-                requestValues.removeAll(associatedValues);
+            if (associatedValues.contains(requestValues) == false) {
                 String errorResponse = messageSource.getMessage("api.error.valueNotAssociated", null, Locale.ENGLISH);
                 errorResponse = errorResponse.replace("[[value]]", associatedField + "-" + requestValues);
                 throw new BadRequestException(errorResponse);
@@ -506,7 +517,7 @@ public class ProductService {
 
         // check if there are associated variations
         if (productVariations.isEmpty()) {
-            throw new BadRequestException(messageSource.
+            throw new NotFoundException(messageSource.
                     getMessage("api.error.variationNotFound", null, Locale.ENGLISH));
         }
 
@@ -544,19 +555,25 @@ public class ProductService {
         ));
 
         // check if category is a leaf node
-        if (category.getChildren() != null) {
+        if (category.getChildren().size() > 0) {
             throw new BadRequestException(messageSource.getMessage("api.error.notLeafNode", null, Locale.ENGLISH));
         }
 
         List<Product> products = productRepository.findByCategory(category);
         // check if records are present
         if (products.isEmpty()) {
-            throw new BadRequestException(messageSource.getMessage("api.error.productNotFound", null, Locale.ENGLISH));
+            throw new NotFoundException(messageSource.getMessage("api.error.productNotFound", null, Locale.ENGLISH));
         }
 
         // convert to appropriate DTO
         List<CustomerProductResponseDTO> productResponseDTOList = new ArrayList<>();
         for (Product product : products) {
+
+            // check if it has at least one available variation
+            List<ProductVariation> variations = productVariationRepository.findByProduct(product);
+            if(variations.size()<1){
+                continue;
+            }
 
             CustomerProductResponseDTO productResponseDTO = new CustomerProductResponseDTO();
 
@@ -569,6 +586,16 @@ public class ProductService {
             productResponseDTO.setIsReturnable(product.isReturnable());
             productResponseDTO.setCategory(product.getCategory());
             productResponseDTOList.add(productResponseDTO);
+            List<VariationResponseDTO> variationResponseDTOList = new ArrayList<>();
+            for (ProductVariation variation:variations) {
+                VariationResponseDTO variationResponseDTO = new VariationResponseDTO();
+                variationResponseDTO.setId(variation.getId());
+                variationResponseDTO.setPrice(variation.getPrice());
+                variationResponseDTO.setMetadata(variation.getMetadata());
+                variationResponseDTO.setQuantity(variation.getQuantity());
+                variationResponseDTOList.add(variationResponseDTO);
+            }
+            productResponseDTO.setVariations(variationResponseDTOList);
         }
         return productResponseDTOList;
 
@@ -582,10 +609,6 @@ public class ProductService {
             throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId", null, Locale.ENGLISH));
         }
 
-        // check product status
-        if (product.get().isDeleted() || product.get().isActive() == false) {
-            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted", null, Locale.ENGLISH));
-        }
 
         // find similar products
         Category associatedCategory = product.get().getCategory();
@@ -594,16 +617,18 @@ public class ProductService {
         // add other products associated to its category to similar list
         List<Product> siblingProducts = productRepository.findByCategory(associatedCategory);
 
-
-        similarProducts.addAll(siblingProducts);
-
-
-        if (similarProducts.size() == 1) {
-            throw new BadRequestException(messageSource.getMessage("api.error.similarProducts", null, Locale.ENGLISH));
+        for(Product sibling:siblingProducts){
+            //check product status
+            if(sibling.isDeleted() || !sibling.isActive()){
+                continue;
+            }
+            similarProducts.add(sibling);
         }
 
+        if (similarProducts.size() <= 1) {
+            throw new NotFoundException(messageSource.getMessage("api.error.similarProducts", null, Locale.ENGLISH));
+        }
         return similarProducts;
-
     }
 
     }
