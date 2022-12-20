@@ -13,7 +13,7 @@ import javax.persistence.*;
 @EqualsAndHashCode
 public class Product extends Auditable<String> {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "product_gen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_gen")
     @SequenceGenerator(name="product_gen", sequenceName = "product_seq", initialValue = 1, allocationSize = 1)
     private long id;
 

@@ -9,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.common.exceptions.UnauthorizedUserException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -98,6 +99,12 @@ public class ApplicationExceptionHandler {
         return new ResponseEntity<>(errorFormat, HttpStatus.NOT_FOUND);
     }
 
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<CustomErrorFormat> handleUserAlreadyExists(HttpRequestMethodNotSupportedException ex, WebRequest request) throws  UserAlreadyExistsException{
+        CustomErrorFormat errorFormat = new CustomErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.METHOD_NOT_ALLOWED);
+        return new ResponseEntity<>(errorFormat, HttpStatus.METHOD_NOT_ALLOWED);
+    }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<CustomErrorFormat> handleUserAlreadyExists(UserAlreadyExistsException ex, WebRequest request) throws  UserAlreadyExistsException{

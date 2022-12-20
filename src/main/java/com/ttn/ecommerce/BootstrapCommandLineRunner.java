@@ -59,9 +59,9 @@ public class BootstrapCommandLineRunner implements CommandLineRunner {
 
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             User user = new User();
-            user.setFirstName("Super");
+            user.setFirstName("Admin");
             user.setLastName("User");
-            user.setEmail("superuser@gmail.com");
+            user.setEmail("adminuser@example.com");
             user.setPassword(passwordEncoder.encode("supersecret"));
             user.setActive(true);
             Role role = roleRepository.findById(1).get();

@@ -2,6 +2,7 @@ package com.ttn.ecommerce.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.ttn.ecommerce.utils.Auditable;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class CategoryMetadataFieldValue {
+public class CategoryMetadataFieldValue extends Auditable<String> {
 
     @EmbeddedId
     private CategoryMetadataFieldKey categoryMetadataFieldKey;

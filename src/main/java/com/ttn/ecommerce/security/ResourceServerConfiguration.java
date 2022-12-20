@@ -36,7 +36,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers("/api/registration").permitAll()
                 .antMatchers("/api/users").permitAll()
                 .antMatchers("/api/login").permitAll()
-                .antMatchers("/api/activate_account").permitAll()
+                .antMatchers("/api/activateAccount").permitAll()
                 .antMatchers("/api/resendActivation").permitAll()
                 .antMatchers("/api/forgotPassword").permitAll()
                 .antMatchers("/api/resetPassword").permitAll()

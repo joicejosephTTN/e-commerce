@@ -1,12 +1,18 @@
 package com.ttn.ecommerce.model;
 
-import com.ttn.ecommerce.entity.Category;
-import lombok.Data;
+import lombok.*;
 
-@Data
+import javax.validation.constraints.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CategoryDTO {
 
+    @NotEmpty(message = "Name is a mandatory field.")
     private String name;
 
+    @Min(value = 0,message = "Enter a valid ID")
     private Long parentId;
 }

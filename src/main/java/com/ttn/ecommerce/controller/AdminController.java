@@ -25,7 +25,6 @@ public class AdminController {
     @Autowired
     AdminService adminService;
 
-
     @GetMapping(path="/customers")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<CustomerResponseDTO>> getAllCustomers(@RequestParam(defaultValue = "0") Integer pageNo,
@@ -64,7 +63,7 @@ public class AdminController {
     @PatchMapping(path="/deactivate")
     @Validated
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String>  disableUser(@RequestParam("id") Long id){
+    public ResponseEntity<String> disableUser(@RequestParam("id") Long id){
         logger.info("AdminController::disableUser request body: "+ id);
         String response = adminService.deactivateUser(id);
         logger.info("AdminController::disableUser response : "+ response);
