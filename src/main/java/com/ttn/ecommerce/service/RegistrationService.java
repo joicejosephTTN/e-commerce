@@ -113,7 +113,6 @@ public class RegistrationService {
         return messageSource.getMessage("api.response.sellerRegistered",null, Locale.ENGLISH);
     }
 
-
     public String createCustomer(CustomerDTO customerDTO){
         logger.info("RegistrationService::createCustomer execution started.");
 

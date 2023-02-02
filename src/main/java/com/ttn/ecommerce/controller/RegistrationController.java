@@ -26,7 +26,7 @@ public class RegistrationController {
     RegistrationService registrationService;
 
 
-    @PostMapping(path = "/registration", headers = "user-role=SELLER")
+    @PostMapping(path = "/sellerRegistration", headers = "user-role=SELLER")
     public ResponseEntity<String> registerUser(@Valid @RequestBody SellerDTO sellerDTO){
         logger.info("RegistrationController::registerUser request body: " + sellerDTO.toString());
 
@@ -36,7 +36,7 @@ public class RegistrationController {
 
     }
 
-    @PostMapping(path = "/registration", headers = "user-role=CUSTOMER")
+    @PostMapping(path = "/customerRegistration", headers = "user-role=CUSTOMER")
     public ResponseEntity<String> registerUser(@Valid @RequestBody CustomerDTO customerDTO){
         logger.info("RegistrationController::registerUser request body: " + customerDTO.toString());
         String response = registrationService.createCustomer(customerDTO);

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class NotificationTokenService {
     NotificationTokenRepository notificationTokenRepository;
 
 
+    @Async
     public String activateUserAccount(String token){
 
         logger.info("NotificationTokenService::activateUserAccount execution started.");
@@ -73,7 +75,7 @@ public class NotificationTokenService {
         }
     }
 
-
+    @Async
     public String resendActivationMail(String email){
 
         logger.info("NotificationTokenService::resendActivationMail execution started.");
@@ -111,6 +113,7 @@ public class NotificationTokenService {
         return messageSource.getMessage("api.response.resendActivation",null, Locale.ENGLISH);
     }
 
+    @Async
     public String forgotPassword(String email){
         logger.info("NotificationTokenService::forgotPassword execution started.");
 
@@ -146,6 +149,7 @@ public class NotificationTokenService {
         return messageSource.getMessage("api.response.forgotPassword",null, Locale.ENGLISH);
     }
 
+    @Async
     public String resetPassword(String token, String password, String confirmPassword){
 
         logger.info("NotificationTokenService::resetPassword execution started.");

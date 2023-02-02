@@ -88,11 +88,10 @@ public class ProductService {
         productRepository.save(product);
 
         //trigger e-mail
-        emailService.sendNewProductMail(product);
+        emailService.sendNewProductMail(product, user);
 
         return messageSource.getMessage("api.response.addedSuccess", null, Locale.ENGLISH);
     }
-
 
     public ProductResponseDTO viewProduct(Authentication authentication, Long id) {
         Optional<Product> product = productRepository.findById(id);
