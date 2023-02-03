@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -35,8 +37,7 @@ public class NotificationTokenService {
     @Autowired
     NotificationTokenRepository notificationTokenRepository;
 
-
-    @Async
+    @Transactional
     public String activateUserAccount(String token){
 
         logger.info("NotificationTokenService::activateUserAccount execution started.");
@@ -75,7 +76,7 @@ public class NotificationTokenService {
         }
     }
 
-    @Async
+    @Transactional
     public String resendActivationMail(String email){
 
         logger.info("NotificationTokenService::resendActivationMail execution started.");
@@ -113,7 +114,7 @@ public class NotificationTokenService {
         return messageSource.getMessage("api.response.resendActivation",null, Locale.ENGLISH);
     }
 
-    @Async
+    @Transactional
     public String forgotPassword(String email){
         logger.info("NotificationTokenService::forgotPassword execution started.");
 
@@ -149,7 +150,7 @@ public class NotificationTokenService {
         return messageSource.getMessage("api.response.forgotPassword",null, Locale.ENGLISH);
     }
 
-    @Async
+    @Transactional
     public String resetPassword(String token, String password, String confirmPassword){
 
         logger.info("NotificationTokenService::resetPassword execution started.");

@@ -14,6 +14,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +39,8 @@ public class RegistrationService {
     @Autowired
     EmailService emailService;
 
+
+    @Transactional
     public String createSeller(SellerDTO sellerDTO){
         logger.info("RegistrationService::createSeller execution started.");
 
@@ -113,6 +116,7 @@ public class RegistrationService {
         return messageSource.getMessage("api.response.sellerRegistered",null, Locale.ENGLISH);
     }
 
+    @Transactional
     public String createCustomer(CustomerDTO customerDTO){
         logger.info("RegistrationService::createCustomer execution started.");
 

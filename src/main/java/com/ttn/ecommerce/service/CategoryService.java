@@ -43,11 +43,57 @@ public class CategoryService {
     @Autowired
     CategoryRepository categoryRepository;
 
+    public void isCategoryUniqueInSubTree(String newCategoryName, Category parentCategory){
+        //iterate the subtree and confirm uniqueness of the new category
+        Set<Category> alreadyVisitedCategory = new HashSet<>();
+        Stack<Category> categoryStack = new Stack<>();
+        categoryStack.push(parentCategory);
+        while (!categoryStack.isEmpty()){
+            Category currentCategory = categoryStack.pop();
+           // mark category as visited
+            if(!alreadyVisitedCategory.contains(currentCategory)){
+                alreadyVisitedCategory.add(currentCategory);
+                if(currentCategory.getName().equalsIgnoreCase(newCategoryName)){
+                    throw new BadRequestException(
+                            "Category already exists with given name : "+newCategoryName
+                    );
+                }
+            }
+            Set<Category> linkedCategory = parentCategory.getChildren();
+            for(Category category: linkedCategory){
+                if (!alreadyVisitedCategory.contains(category)) categoryStack.push(category);
+            }
+        }
+    }
+
+    public void isCategoryUniqueFromRootToLeaf(String newCategoryName, Category parentCategory){
+        //check whether new category is unique in its branch i.e. from root till leaf
+        Stack<Category> categoryStack = new Stack<>();
+        categoryStack.push(parentCategory);
+        while (!categoryStack.isEmpty()){
+            Category currentCategory = categoryStack.pop();
+            if (currentCategory.getName().equalsIgnoreCase(newCategoryName)){
+                throw new BadRequestException("Category already exists with given name : "+newCategoryName);
+            }
+            if (!currentCategory.getChildren().isEmpty()){
+                categoryStack.push(currentCategory.getParent());
+            }
+        }
+    }
+
+    public void isCategoryUniqueInRoot(String newCategoryName){
+        // check whether category is unique at the root level
+        List<Category> categories = categoryRepository.findByParent(null);
+        if(categories.stream().anyMatch(category -> category.getName().equalsIgnoreCase(newCategoryName))){
+            throw new BadRequestException("Category already exists with name : "+newCategoryName);
+        }
+    }
+
     public Long createCategory(CategoryDTO categoryDTO) {
         logger.info("CategoryService::createCategory execution started");
         Category category = new Category();
-
         logger.debug("CategoryService::createCategory creating new category");
+        isCategoryUniqueInRoot(categoryDTO.getName());
         if (categoryDTO.getParentId() != null) {
             // check to see if passed parentID is valid
             Optional<Category> parentCategory = categoryRepository.findById(categoryDTO.getParentId());
@@ -61,13 +107,13 @@ public class CategoryService {
                 logger.error("CategoryService::createCategory an exception occurred while creating the category");
                 throw new BadRequestException(messageSource.getMessage("api.error.productAssociatedCategory",null,Locale.ENGLISH));
             }
+            isCategoryUniqueInSubTree(categoryDTO.getName(), parentCategory.get());
+            isCategoryUniqueFromRootToLeaf(categoryDTO.getName(), parentCategory.get());
             category.setParent(parentCategory.get());
         }
-
         category.setName(categoryDTO.getName());
         logger.info("CategoryService::createCategory execution ended.");
         return categoryRepository.save(category).getId();
-
     }
 
     public Long createMetadataField(MetadataDTO metadataDTO) {

@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.util.Locale;
 
 
@@ -52,6 +53,7 @@ public class AuthenticationService {
         return details;
     }
 
+    @Transactional
     public ResponseEntity<String> userSignOut(HttpServletRequest request) {
         logger.info("AuthenticationService::userSignOut execution started.");
 
