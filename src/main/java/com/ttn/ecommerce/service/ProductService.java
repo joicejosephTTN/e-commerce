@@ -260,12 +260,15 @@ public class ProductService {
         if(Objects.nonNull(existingVariationsList)){
             // check uniqueness of the variation
             if(existingVariationsList.contains(productVariation)){
-                return messageSource.getMessage("Variation already exists.", null, Locale.ENGLISH);
+                return messageSource.getMessage("api.error.variationAlreadyExists", null, Locale.ENGLISH);
             }
-            // ensure the metadata structure is same for all variations
-            else if (productVariation.getMetadata().equals(existingVariationsList.get(0).getMetadata())) {
+            boolean requiredStructure = FilterProperties.comparePropertyNames(
+                    productVariation.getMetadata(),
+                    existingVariationsList.get(0).getMetadata());
+
+            if (requiredStructure == false) {
                 return messageSource.getMessage(
-                        "All variations of the product should have the same metadata structure",
+                        "api.error.variationMetadataStructure",
                         null,
                         Locale.ENGLISH
                 );
@@ -413,15 +416,15 @@ public class ProductService {
             if(Objects.nonNull(existingVariationsList)){
                 // check uniqueness of the variation
                 if(existingVariationsList.contains(productVariation)){
-                    return messageSource.getMessage("Variation already exists.", null, Locale.ENGLISH);
+                    return messageSource.getMessage("api.error.variationAlreadyExists", null, Locale.ENGLISH);
                 }
                 // ensure the metadata structure is same as the previous variations
                 boolean requiredStructure = FilterProperties.comparePropertyNames(
                         productVariation.get().getMetadata(),
                         existingVariationsList.get(0).getMetadata());
-                if (!requiredStructure) {
+                if (requiredStructure == false) {
                     return messageSource.getMessage(
-                            "All variations of the product should have the same metadata structure",
+                            "api.error.variationMetadataStructure",
                             null,
                             Locale.ENGLISH
                     );
@@ -635,7 +638,7 @@ public class ProductService {
 
     }
 
-    public List<Product> viewSimilarProducts(Long productId) {
+    public List<ProductResponseDTO> viewSimilarProducts(Long productId) {
 
         // check if ID is valid
         Optional<Product> product = productRepository.findById(productId);
@@ -645,7 +648,7 @@ public class ProductService {
 
         // find similar products
         Category associatedCategory = product.get().getCategory();
-        List<Product> similarProducts = new ArrayList<>();
+        List<ProductResponseDTO> similarProducts = new ArrayList<>();
 
         // add other products associated to its category to similar list
         List<Product> siblingProducts = productRepository.findByCategory(associatedCategory);
@@ -655,7 +658,9 @@ public class ProductService {
             if(sibling.isDeleted() || !sibling.isActive()){
                 continue;
             }
-            similarProducts.add(sibling);
+            ProductResponseDTO productDTO= new ProductResponseDTO();
+            BeanUtils.copyProperties(sibling, productDTO);
+            similarProducts.add(productDTO);
         }
 
         if (similarProducts.size() <= 1) {
