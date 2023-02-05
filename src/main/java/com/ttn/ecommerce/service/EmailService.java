@@ -7,6 +7,7 @@ import com.ttn.ecommerce.model.ProductResponseDTO;
 import com.ttn.ecommerce.repository.NotificationTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.SimpleMailMessage;
@@ -24,13 +25,16 @@ public class EmailService {
     Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired
+    private RabbitTemplate template;
+
+
+    @Autowired
     private JavaMailSender javaMailSender;
 
     @Autowired
     NotificationTokenRepository notificationTokenRepository;
 
     // method to compose and send an email
-    @Async
     public void sendEmail(String toEmail, String body, String subject) {
         logger.info("EmailService::sendMail execution started.");
 
@@ -46,6 +50,7 @@ public class EmailService {
 
     }
 
+    @Async
     // method to trigger an activation mail with token
     public void sendActivationMail(User user){
         logger.info("EmailService::sendActivationMail execution started.");
@@ -60,12 +65,12 @@ public class EmailService {
 
         body = body.replace("[[name]]", user.getFirstName());
         body = body.replace("[[URL]]",link +"/activateAccount?token="+ activationToken.getToken());
-
         sendEmail(user.getEmail(), body, subject);
         logger.info("EmailService::sendActivationMail execution ended.");
 
     }
 
+    @Async
     // method to trigger a mail to notify that account is activated
     public void sendIsActivatedMail(User user){
         logger.info("EmailService::sendIsActivatedMail execution started.");
@@ -80,6 +85,7 @@ public class EmailService {
         logger.info("EmailService::sendIsActivatedMail execution ended.");
     }
 
+    @Async
     // method to trigger a mail to reset the password
     public void sendForgotPasswordMail(User user){
         logger.info("EmailService::sendForgotPasswordMail execution started.");
@@ -100,6 +106,7 @@ public class EmailService {
         logger.info("EmailService::sendForgotPasswordMail execution ended.");
     }
 
+    @Async
     // method to trigger a mail to notify successful password change
     public void sendSuccessfulChangeMail(User user) {
         logger.info("EmailService::sendSuccessfulChangeMail execution started.");
@@ -113,6 +120,7 @@ public class EmailService {
         logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
     }
 
+    @Async
     // method to trigger a mail to notify the account activation is awaiting approval
     public void sendAwaitingApprovalMail(User user){
         logger.info("EmailService::sendAwaitingApprovalMail execution started.");
@@ -128,7 +136,7 @@ public class EmailService {
 
     }
 
-
+    @Async
     // method to trigger a mail to notify the account has been locked
     public void sendAccountLockedMail(User user){
         logger.info("EmailService::sendAccountLockedMail execution started.");
@@ -144,6 +152,7 @@ public class EmailService {
 
     }
 
+    @Async
     // method to trigger a mail to notify that account has been deactivated
     public void sendDeActivatedMail(User user) {
         logger.info("EmailService::sendDeActivatedMail execution started.");
@@ -158,8 +167,9 @@ public class EmailService {
         logger.info("EmailService::sendDeActivatedMail execution ended.");
     }
 
+    @Async
     // method to trigger a mail to notify that product has been created
-    public void sendNewProductMail(Product product) {
+    public void sendNewProductMail(Product product, User user) {
         logger.info("EmailService::sendNewProductMail execution started.");
 
         logger.debug("EmailService::sendNewProductMail composing email to send");
@@ -168,10 +178,11 @@ public class EmailService {
         body = body.replace("[[name]]", "Admin");
         body = body.replace("[[details]]", product.toString());
 
-        sendEmail("tarunsingh021@gmail.com", body, subject);
+        sendEmail(user.getEmail(), body, subject);
         logger.info("EmailService::sendNewProductMail execution ended.");
     }
 
+    @Async
     // method to trigger a mail to notify that product has been activated
     public void sendProductActivationMail(ProductResponseDTO product,User user) {
         logger.info("EmailService::sendProductActivationMail execution started.");
@@ -186,6 +197,7 @@ public class EmailService {
         logger.info("EmailService::sendProductActivationMail execution ended.");
     }
 
+    @Async
     // method to trigger a mail to notify that product has been deactivated
     public void sendProductDeactivationMail(ProductResponseDTO product,User user) {
         logger.info("EmailService::sendProductDeactivationMail execution started.");

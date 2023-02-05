@@ -22,4 +22,33 @@ public class FilterProperties {
         }
         return emptyNames.toArray(new String[0]);
     }
+
+    public static boolean comparePropertyNames(Object source1, Object source2) {
+        final BeanWrapper src1 = new BeanWrapperImpl(source1);
+        PropertyDescriptor[] pds1 = src1.getPropertyDescriptors();
+
+        final BeanWrapper src2 = new BeanWrapperImpl(source2);
+        PropertyDescriptor[] pds2 = src2.getPropertyDescriptors();
+
+        if (pds1.length != pds2.length) {
+            return false;
+        }
+
+        Set<String> propertyNamesSource1 = new HashSet<>();
+        for(PropertyDescriptor pd : pds1) {
+            Object srcValue = src1.getPropertyValue(pd.getName());
+            propertyNamesSource1.add(pd.getName());
+        }
+
+        Set<String> propertyNamesSource2 = new HashSet<>();
+        for(PropertyDescriptor pd : pds2) {
+            Object srcValue = src2.getPropertyValue(pd.getName());
+            propertyNamesSource1.add(pd.getName());
+        }
+
+        if (propertyNamesSource1.containsAll(propertyNamesSource2) == false)
+            return false;
+
+        return true;
+    }
 }

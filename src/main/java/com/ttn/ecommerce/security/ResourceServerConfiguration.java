@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -29,11 +30,27 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Autowired
     private UserDetailsService customUserDetailsService;
 
+    private static final String[] SWAGGER_WHITELIST = {
+            // Swagger UI v2
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            // Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+    };
+
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/api/registration").permitAll()
+                .antMatchers("/api/sellerRegistration").permitAll()
+                .antMatchers("/api/customerRegistration").permitAll()
                 .antMatchers("/api/users").permitAll()
                 .antMatchers("/api/login").permitAll()
                 .antMatchers("/api/activateAccount").permitAll()
@@ -41,6 +58,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers("/api/forgotPassword").permitAll()
                 .antMatchers("/api/resetPassword").permitAll()
                 .antMatchers("/api/registration").permitAll()
+                .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .antMatchers("/api/logout").authenticated()
                 .anyRequest().authenticated()
                 .and()

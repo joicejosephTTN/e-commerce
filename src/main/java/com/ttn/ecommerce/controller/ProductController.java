@@ -139,8 +139,8 @@ public class ProductController{
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
     @GetMapping("/customer/similar/{id}")
-    public ResponseEntity<List<Product>> viewSimilarProducts(@PathVariable Long id){
-        List<Product> response = productService.viewSimilarProducts(id);
+    public ResponseEntity<List<ProductResponseDTO>> viewSimilarProducts(@PathVariable Long id){
+        List<ProductResponseDTO> response = productService.viewSimilarProducts(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

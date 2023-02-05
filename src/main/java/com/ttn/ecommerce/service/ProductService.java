@@ -1,4 +1,5 @@
 package com.ttn.ecommerce.service;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttn.ecommerce.entity.*;
 import com.ttn.ecommerce.exception.BadRequestException;
 import com.ttn.ecommerce.exception.NotFoundException;
@@ -88,11 +89,10 @@ public class ProductService {
         productRepository.save(product);
 
         //trigger e-mail
-        emailService.sendNewProductMail(product);
+        emailService.sendNewProductMail(product, user);
 
         return messageSource.getMessage("api.response.addedSuccess", null, Locale.ENGLISH);
     }
-
 
     public ProductResponseDTO viewProduct(Authentication authentication, Long id) {
         Optional<Product> product = productRepository.findById(id);
@@ -255,8 +255,26 @@ public class ProductService {
         ProductVariation productVariation = new ProductVariation();
         BeanUtils.copyProperties(addVariationDTO, productVariation);
         productVariation.setProduct(product.get());
-        productVariationRepository.save(productVariation);
 
+        List<ProductVariation> existingVariationsList = productVariationRepository.findByProduct(product.get());
+        if(Objects.nonNull(existingVariationsList)){
+            // check uniqueness of the variation
+            if(existingVariationsList.contains(productVariation)){
+                return messageSource.getMessage("api.error.variationAlreadyExists", null, Locale.ENGLISH);
+            }
+            boolean requiredStructure = FilterProperties.comparePropertyNames(
+                    productVariation.getMetadata(),
+                    existingVariationsList.get(0).getMetadata());
+
+            if (requiredStructure == false) {
+                return messageSource.getMessage(
+                        "api.error.variationMetadataStructure",
+                        null,
+                        Locale.ENGLISH
+                );
+            }
+        }
+        productVariationRepository.save(productVariation);
         return messageSource.getMessage("api.response.addedSuccess", null, Locale.ENGLISH);
 
     }
@@ -393,8 +411,27 @@ public class ProductService {
 
             BeanUtils.copyProperties(productVariationUpdateDTO, productVariation.get(), FilterProperties.getNullPropertyNames(productVariation.get()));
             productVariation.get().setProduct(product);
-            productVariationRepository.save(productVariation.get());
 
+            List<ProductVariation> existingVariationsList = productVariationRepository.findByProduct(product);
+            if(Objects.nonNull(existingVariationsList)){
+                // check uniqueness of the variation
+                if(existingVariationsList.contains(productVariation)){
+                    return messageSource.getMessage("api.error.variationAlreadyExists", null, Locale.ENGLISH);
+                }
+                // ensure the metadata structure is same as the previous variations
+                boolean requiredStructure = FilterProperties.comparePropertyNames(
+                        productVariation.get().getMetadata(),
+                        existingVariationsList.get(0).getMetadata());
+                if (requiredStructure == false) {
+                    return messageSource.getMessage(
+                            "api.error.variationMetadataStructure",
+                            null,
+                            Locale.ENGLISH
+                    );
+                }
+            }
+
+            productVariationRepository.save(productVariation.get());
             return messageSource.getMessage("api.response.updateSuccess", null, Locale.ENGLISH);
 
         }
@@ -601,7 +638,7 @@ public class ProductService {
 
     }
 
-    public List<Product> viewSimilarProducts(Long productId) {
+    public List<ProductResponseDTO> viewSimilarProducts(Long productId) {
 
         // check if ID is valid
         Optional<Product> product = productRepository.findById(productId);
@@ -609,20 +646,21 @@ public class ProductService {
             throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId", null, Locale.ENGLISH));
         }
 
-
         // find similar products
         Category associatedCategory = product.get().getCategory();
-        List<Product> similarProducts = new ArrayList<>();
+        List<ProductResponseDTO> similarProducts = new ArrayList<>();
 
         // add other products associated to its category to similar list
         List<Product> siblingProducts = productRepository.findByCategory(associatedCategory);
 
-        for(Product sibling:siblingProducts){
+        for(Product sibling : siblingProducts){
             //check product status
             if(sibling.isDeleted() || !sibling.isActive()){
                 continue;
             }
-            similarProducts.add(sibling);
+            ProductResponseDTO productDTO= new ProductResponseDTO();
+            BeanUtils.copyProperties(sibling, productDTO);
+            similarProducts.add(productDTO);
         }
 
         if (similarProducts.size() <= 1) {

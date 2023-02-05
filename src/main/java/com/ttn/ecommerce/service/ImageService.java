@@ -55,7 +55,7 @@ public class ImageService{
 
         // if no related image is found return empty byte array
         // else return byte array of the img
-        if (files.length==0){
+        if (files.length == 0){
             logger.debug("ImageService::getImage no associated image found");
             logger.info("ImageService::getImage execution ended.");
             return new byte[0];

@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -86,6 +87,8 @@ public class SellerService {
         return sellerViewDTO;
     }
 
+
+    @Transactional
     public String updateProfile(String email, SellerUpdateDTO sellerUpdateDTO, MultipartFile image) {
         logger.info("SellerService::updateProfile execution started.");
         // get associated user,seller and address
